@@ -443,7 +443,7 @@
       <child>
 	<widget class="GtkLabel" id="label1">
 	  <property name="visible">True</property>
-	  <property name="label" translatable="yes">Welcome to this CVS Edition of Anatomic P2P GUI Planter </property>
+	  <property name="label" translatable="yes">Welcome to Anatomic P2P GUI Planter CVS Edition </property>
 	  <property name="use_underline">False</property>
 	  <property name="use_markup">True</property>
 	  <property name="justify">GTK_JUSTIFY_LEFT</property>
