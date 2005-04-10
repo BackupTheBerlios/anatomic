@@ -34,7 +34,7 @@ class planter:
 		import time
 		time = time.ctime()
 		self.iter = self.logbuffer.get_iter_at_offset(0)
-		self.logbuffer.insert_with_tags_by_name(self.iter, time+" Anatomic P2P Planter", "blue_foreground")
+		self.logbuffer.insert_with_tags_by_name(self.iter, time+" Anatomic P2P Planter CVS Edition", "blue_foreground")
 	def browsefile(self, widget, data=None):
 		self.lastdialog = "filechooserdialog1"
 		gladefile = "planter.glade"
