@@ -22,7 +22,7 @@ class planter:
 	def __init__(self):
 		gladefile = "planter.glade"
 		windowname = "window1"
-		self.lastfilename = ""
+		self.lastdirname = ""
 		self.planting = 0
 		self.window = gtk.glade.XML(gladefile, windowname)
 		self.window.get_widget("window1").connect("delete_event", self.destroy)
@@ -41,14 +41,21 @@ class planter:
 		gladefile = "planter.glade"
 		dialogname = "filechooserdialog1"
 		self.dialog = gtk.glade.XML(gladefile, dialogname)
-		if self.lastfilename != "":
-			self.dialog.get_widget("filechooserdialog1").set_filename(self.lastdir)
+		if self.lastdirname != "":
+			self.dialog.get_widget("filechooserdialog1").set_current_folder(self.lastdirname)
+		self.torrentfilter = gtk.FileFilter()
+		self.torrentfilter.add_pattern("*.torrent")
+		self.torrentfilter.set_name("Torrent Files")
+		self.dialog.get_widget("filechooserdialog1").add_filter(self.torrentfilter)
 		self.dialog.get_widget("button4").connect_object("clicked", self.dialogdestroy, dialogname)
 		self.dialog.get_widget("button5").connect("clicked", self.takefile)
+		self.dialog.get_widget("filechooserdialog1").connect_object("delete_event", self.dialogdestroy, dialogname)
 	def takefile(self, widget, data=None):
 		filename = self.dialog.get_widget("filechooserdialog1").get_filename()
+		dirname = self.dialog.get_widget("filechooserdialog1").get_current_folder()
 		self.dialog.get_widget("filechooserdialog1").destroy()
-		self.lastfilename = filename 
+		self.lastdirname = dirname
+		self.window.get_widget("entry1").set_text(filename)
 	def destroy(self, widget, data=None):
 		if self.planting == 1:
 			gladefile = "planter.glade"
