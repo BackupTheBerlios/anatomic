@@ -77,7 +77,7 @@ class Httpplant(threading.Thread):
 				try:
 					import urllib2
 					f = urllib2.Request(x)
-					f.add_header('User-agent', 'Anatomic P2P Planter GUI CVS (S)  +http://anatomic.berlios.de/' ) 
+					f.add_header('User-agent', 'Anatomic P2P Planter GUI CVS Edition (S)  +http://anatomic.berlios.de/' ) 
 					opener = urllib2.build_opener()
 					data = opener.open(f).read()
 				except IOError:
@@ -105,7 +105,7 @@ class Httpplant(threading.Thread):
 			tracker += urlencode({"client" : 1, "plant" : infohash})
 			try:
 				t = urllib2.Request(tracker)
-				t.add_header('User-agent', 'Anatomic P2P Planter GUI CVS (S)  +http://anatomic.berlios.de/' ) 
+				t.add_header('User-agent', 'Anatomic P2P Planter GUI CVS Edition (S)  +http://anatomic.berlios.de/' ) 
 				opener = urllib2.build_opener()
 				response = opener.open(t).read()
 			except IOError, e:
@@ -127,7 +127,7 @@ class Httpplant(threading.Thread):
 						z += qstring
 						try:
 							f3 = urllib2.Request(z)
-							f3.add_header('User-agent', 'Anatomic P2P Planter GUI CVS (S)  +http://anatomic.berlios.de/' ) 
+							f3.add_header('User-agent', 'Anatomic P2P Planter GUI CVS Edition (S)  +http://anatomic.berlios.de/' ) 
 							opener = urllib2.build_opener()
 							data = opener.open(f3).read()
 						except IOError:
@@ -156,17 +156,104 @@ class Httpplant(threading.Thread):
 					except ValueError:
 							app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Supernode Response corrupt" , "red_foreground")  		
 					app.haltplant()
-					sys.exit()d
-
-
-
-
-
-
-
-
-
-
+					sys.exit()
+		else:
+			needed = self.trackers
+			app.logbuffer.insert_with_tags_by_name(app.iter,"\rAttempting MultiPlant", "purple_foreground") 
+ 			qstring = "?" #querystring
+			qstring += urlencode({"multiseed" : needed, "client" : 1})
+			status = 0
+			import types
+			# to make sure data is in a list from tracker
+			for x in url:
+				stracker = x
+				x += qstring
+				try:
+					import urllib2
+					f = urllib2.Request(x)
+					f.add_header('User-agent', 'Anatomic P2P Planter (MS) GUI CVS Edition +http://anatomic.berlios.de/' ) 
+					opener = urllib2.build_opener()
+					data = opener.open(f).read()
+				except IOError:
+					pass
+				else:
+					try:
+						bdata3 = bdecode(data)
+					except ValueError:
+						pass
+					else: 			
+						if type(bdata3) == types.ListType:
+							status = 1 # i.e. successful first stage
+							trackers = bdata3
+							url.remove(stracker)
+					break
+					
+			if status == 0:
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: No valid Response from any nodes. Please run anaupdatesnodes or lower the required trackers" , "red_foreground")  	 
+				app.haltplant()
+				sys.exit(2)	
+			import copy
+			trackers2 = copy.deepcopy(trackers)
+			z = trackers2[0]
+			del(trackers2[0])
+			trackers2.append(z)
+			for num in range(0,len(trackers)):
+				tracker = trackers[num]
+				tracker = tracker.replace("/announce", "/plant")
+				othertracker = trackers2[num]
+				qstring = "?"
+				qstring += urlencode({"client" : 1, "multiplant" : infohash, "url" : othertracker})
+				tracker += qstring
+				try:
+					t = urllib2.Request(tracker)
+					t.add_header('User-agent', 'Anatomic P2P Planter (MS) GUI CVS Edition +http://anatomic.berlios.de/' ) 
+					opener = urllib2.build_opener()
+					response = opener.open(t).read()
+				except IOError, e:
+					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again"+e , "red_foreground")  	 
+				else:
+					message = bdecode(response)
+					if type(message) == types.DictType and message.has_key("failure reason"):
+						app.logbuffer.insert_with_tags_by_name(app.iter, "\rError:"+message["failure reason"] , "red_foreground")  	 
+ 					else:
+						app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from tracker:"+message , "purple_foreground")   
+			import random
+			strackerlist = [random.choice(url), stracker] 
+			for tracker in trackers:
+				qstring = "?"
+				qstring += urlencode({"client" : 1, "tpush" : tracker})
+				stracker = strackerlist[1] # this is the important stracker. [0] is a backup
+				for z in strackerlist:	
+					z += qstring
+					try:
+						import urllib2
+						f = urllib2.Request(z)
+						f.add_header('User-agent', 'Anatomic P2P Planter (MS) GUI CVS Edition +http://anatomic.berlios.de/' ) 
+						opener = urllib2.build_opener()
+						data = opener.open(f).read()
+					except IOError:
+						pass
+					else:
+						try:
+							bdata3 = bdecode(data)
+							app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from Supertracker"+bdata3, "purple_foreground")   
+						except ValueError:
+							pass
+			
+			if bdata.has_key("announce-list"):
+				del bdata["announce-list"]
+			stracker = stracker.replace("/cache", "/announce")
+			bdata["announce"] = stracker
+			bdata["planted"] = 1
+			bdata = bencode(bdata)
+			try:
+				f = open(self.filename, "w")
+			except IOError, e:
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file:"+e.filename, "green_foreground")    
+			else:
+				file = f.write(bdata)
+				f.close()
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rTorrent Successfully MultiPlanted on Anatomic P2P (if there are no errors above)", "green_foreground")    
 class Plantergui:
 	def __init__(self):
 		#TODO
