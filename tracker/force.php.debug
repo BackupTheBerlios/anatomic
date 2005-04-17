@@ -1,0 +1,129 @@
+<?php
+/*
+    Anatomic P2P Tracker - 'Force a peer share debug script'
+    Copyright (C) 2005 kunkie
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+// This script is not needed in normal tracker operation
+// It was used by me to debug peer sharing and accepts info_hash like index.php
+
+if(isset($_GET['info_hash'])){
+   $info_hash = $_GET['info_hash'];
+echo "This script forces peers to be shared<BR>";
+echo "The info hash is: " . $info_hash;
+// Peer sharing code starts here
+  if(file_exists("multiseed/$info_hash")){   // checks to see if multiseed file is present
+  $data = @file_get_contents("multiseed/$info_hash");  // reads data from multiseed file
+  echo "<BR>";
+  echo "Data from multiseed file: " . $data;
+   $data2 = explode(":",$data, 2); // $data2[0] is the timestamp
+  #  if((time() - (int)$data2[0]) >= 900){  // every 15 mins
+       // THIS CODE REMOVES DYING PEERS
+      $time = intval((time() % 7680) / 60);
+         $handle = fopen($info_hash, "rb+");
+            flock($handle, LOCK_EX);
+        $x = fread($handle, filesize($info_hash));
+        $no_peers = intval(strlen($x) / 7);
+        for($j=0;$j<$no_peers;$j++)
+        {
+                $t_peer_seed = join('', unpack("C", substr($x, $j * 7, 1)));
+                if($t_peer_seed >= 128)
+                {
+                           $t_time = $t_peer_seed - 128;
+                }
+                else
+                {
+                        $t_time = $t_peer_seed;
+
+                }
+                if($time - 40 <= $t_time && $time >= $t_time || $time + 88 < $t_time)
+                {
+                        $new_data .= substr($x, $j * 7, 7);
+                }
+        }
+        rewind($handle);
+        ftruncate($handle, 0);
+        fwrite($handle, $new_data);
+        flock($handle, LOCK_UN);
+        fclose($handle);
+
+     require("BEncode.php"); // I cannot avoid it :-(.  I am a lazy coder
+         $handle2 = fopen($info_hash, "rb+");
+        flock($handle2, LOCK_EX);
+        $x = fread($handle2, filesize($info_hash));
+        flock($handle2, LOCK_UN);
+        fclose($handle2);
+         $no_peers = intval(strlen($x) / 7);
+          if($no_peers != 0){
+              $peers = array();
+          for($j=0;$j<$no_peers;$j++)
+        {
+
+                $ip = unpack("C*", substr($x, $j * 7 + 1, 4));
+                $ip = $ip[1] . '.' . $ip[2] . '.' . $ip[3] . '.' . $ip[4];
+                $tempdata = $ip;
+                $port = join('', unpack("n*", substr($x, $j * 7 + 5, 2)));
+                $tempdata .= ':' . $port;
+                $t_peer_seed = join('', unpack("C", substr($x, $j * 7, 1)));
+                $tempdata .= ':' . $t_peer_seed ;
+
+                                   $peers[] = $tempdata;
+
+                }
+                if(count($peers) < 20){
+                 shuffle($peers);
+                }else{
+                        $peers = array_rand($peers, 20);
+                        }
+                        $peers = BEncode($peers);
+                        $url = str_replace("announce", "multiseed", $data2[1]);
+               $url .= "?info_hash=" . urlencode(pack("H*", $info_hash)) . "&data=" . urlencode($peers);
+        $fp = fopen($url, "rb");
+              $stream = "";
+                 if ($fp) {
+                     while( !feof( $fp ) ) {
+                          $stream .= @fread($fp, 128);
+                          }
+                          }
+                          fclose($fp);
+
+                        $minfo = fopen("multiseed/$info_hash", "rb+");
+                        ftruncate($minfo, 0);
+                        $times = time() . ":" . $data2[1];
+                        fwrite($minfo, $times);
+                         fclose($minfo);
+                         echo "<BR>peer dump:";
+                                var_dump($peers);
+                                echo "<BR>";
+                                echo "Response from other tracker: ";
+                                echo $stream;
+                                echo "<BR>URL of other tracker: ";
+                                echo $url ;
+                                echo "<BR>Timestamp: ";
+                                echo $data2[1];
+
+
+
+
+        }else{
+              echo "Peers are nil";
+                        }
+
+    # }
+     }
+  // Peer sharing code ends here
+  }
+?>

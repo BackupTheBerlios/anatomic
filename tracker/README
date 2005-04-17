@@ -1,0 +1,51 @@
+Thank you for downloading Anatomic P2P 0.1 BETA Tracker
+This software was based on FBT2 - Flippy's BitTorrent Tracker 2
+
+Anatomic P2P 0.1 BETA Tracker (c) kunkie 2005
+Anatomic P2P comes with ABSOLUTELY NO WARRANTY; see LICENCE.
+This is free software, and you are welcome to redistribute it
+under certain conditions; see LICENCE
+
+1. Files included:
+DIRECTORY multiseed - Used to store url + timestamp of other tracker
+when a torrent has been activated for peer sharing.
+announce.php - Standard announce.php, which clients connect to to
+find out about peers. Modified to share peers every 15mins and to 
+use X-FORWARDED-THROUGH if present.
+BEncode.php - PHP BEncode Library - Hopefully gone by 1st RC (Release Candidate)
+BDecode.php - PHP BDecode Library - Hopefully gone by 1st RC (Release Candidate)
+force.php.debug - Debug script that forces peers to be shared when:
+"force.php?info_hash="40 byte hex infohash" (like index.php)
+index.php - HTML Frontend that shows hashes and seeds/peers
+LICENCE - GNU Gereral Public Licence Version 2
+multiseed.php - Script that accepts peers during peer sharing
+my.sig - Geekcode users will know what to do with this.
+README - This file
+plant.php - Planting script that client uses to plant or multiplant torrents
+request.php - Supertracker uses this script to find out what hashes or on
+this tracker
+scrape.php - Used to show how many seeds/peers there are on a torrent
+
+2. System Requirements:
+PHP4 web server (e.g. Apache) - preferably latest version of PHP 4
+Bandwidth :-)
+A valid url (eg. x.dyndns.org, x.site.org) or static ip. IF POSSIBLE USE A SUBDOMAIN.
+
+3. What to do:
+Upload all PHP files and folder multiseed.
+If desired upload force.php.debug as force.php
+CHMOD 777 - (please notify if this causes problems) all files and folder.
+
+DO NOT PUT QUOTES IN THE URL
+Announce your supertracker to the world by:
+"KNOWN SUPERTRACKER"?tpush="YOUR TRACKER URL"
+
+A KNOWN SUPERTRACKER AT THE PRESENT TIME (28-3-05) IS:
+http://anatomic.berlios.de/network/node-a/cache.php
+
+At this early stage in Anatomic P2P I would advise notifying me if a tracker
+is made at: kunky@mail.berlios.de
+
+4. Contact:
+Please visit http://anatomic.berlios.de for more information or
+email me at: kunky@mail.berlios.de
