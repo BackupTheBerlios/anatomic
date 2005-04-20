@@ -31,7 +31,7 @@ class Httpplant(threading.Thread):
 		try:
 			f = open(self.filename, "r")
 		except IOError, e:
-			app.logbuffer.insert_with_tags_by_name(app.iter, "\rFATAL ERROR: Cannot open file:", e.filename , "red_foreground")
+			app.logbuffer.insert_with_tags_by_name(app.iter, "\rFATAL ERROR: Cannot open file: ", e.filename , "red_foreground")
 			app.haltplant()
 			sys.exit()
 		file = f.read()
@@ -51,7 +51,7 @@ class Httpplant(threading.Thread):
 			try:
 				f = open('strackers.dat', "r")
 			except IOError, e:
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot open file:", e.filename, "red_foreground")
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot open file: ", e.filename, "red_foreground")
 			file = f.read()
 			f.close()
 			try:
@@ -114,11 +114,11 @@ class Httpplant(threading.Thread):
 				message = bdecode(response)
 				import types
 				if type(message) == types.DictType and message.has_key("failure reason"):
-					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError:"+message["failure reason"], "red_foreground")
+					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: "+message["failure reason"], "red_foreground")
 					app.haltplant()
 					sys.exit(1)
 				else:
-					app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from tracker:"+message, "red_foreground")
+					app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from tracker: "+message, "red_foreground")
 					import random
 					strackerlist = [random.choice(url), stracker] # this list contains a stracker and a backup stracker
 					qstring = urlencode({"client" : 1, "tpush" : bdata3})
@@ -146,13 +146,13 @@ class Httpplant(threading.Thread):
 							try:
 								f = open(self.filename, "w")
 							except IOError, e:
-								app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file:"+e.filename, "red_foreground")  
+								app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+e.filename, "red_foreground")  
 							else:
 								file = f.write(bdata)
 								f.close()
 								app.logbuffer.insert_with_tags_by_name(app.iter, "\rTorrent Successfully Planted on Anatomic P2P", "green_foreground")  
 						else: 
-							app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Supernode Response is very unexpected:"+bdata2, "red_foreground")   
+							app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Supernode Response is very unexpected: "+bdata2, "red_foreground")   
 					except ValueError:
 							app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Supernode Response corrupt" , "red_foreground")  		
 					app.haltplant()
@@ -210,13 +210,13 @@ class Httpplant(threading.Thread):
 					opener = urllib2.build_opener()
 					response = opener.open(t).read()
 				except IOError, e:
-					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again"+e , "red_foreground")  	 
+					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again - "+e , "red_foreground")  	 
 				else:
 					message = bdecode(response)
 					if type(message) == types.DictType and message.has_key("failure reason"):
-						app.logbuffer.insert_with_tags_by_name(app.iter, "\rError:"+message["failure reason"] , "red_foreground")  	 
+						app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: "+message["failure reason"] , "red_foreground")  	 
  					else:
-						app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from tracker:"+message , "purple_foreground")   
+						app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from tracker: "+message , "purple_foreground")   
 			import random
 			strackerlist = [random.choice(url), stracker] 
 			for tracker in trackers:
@@ -236,7 +236,7 @@ class Httpplant(threading.Thread):
 					else:
 						try:
 							bdata3 = bdecode(data)
-							app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from Supertracker"+bdata3, "purple_foreground")   
+							app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from Supertracker: "+bdata3, "purple_foreground")   
 						except ValueError:
 							pass
 			
@@ -249,15 +249,14 @@ class Httpplant(threading.Thread):
 			try:
 				f = open(self.filename, "w")
 			except IOError, e:
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file:"+e.filename, "green_foreground")    
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+e.filename, "green_foreground")    
 			else:
 				file = f.write(bdata)
 				f.close()
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rTorrent Successfully MultiPlanted on Anatomic P2P (if there are no errors above)", "green_foreground")    
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rTorrent Successfully MultiPlanted on Anatomic P2P (if there are no errors above)", "green_foreground")   
+				app.haltplant()
 class Plantergui:
 	def __init__(self):
-		#TODO
-		# finish rest of plant script
 		gladefile = "planter.glade"
 		windowname = "window1"
 		self.lastdirname = ""
