@@ -2,7 +2,7 @@
 error_reporting(1);
 /*
 FBT2 - Flippy's BitTorrent Tracker v2 (GPL)
-in Anatomic P2P 0.1 BETA
+in Anatomic P2P 0.2 BETA
 http://anatomic.berlios.de/
 kunky 'at' users.berlios 'dot' de
 http://www.torrentz.com/fbt.html
@@ -11,7 +11,7 @@ flippy `at` ameritech `dot` net
 $time = intval((time() % 7680) / 60);
 function getstat($file)
 {
-        global $time;
+	global $time;
         $handle = fopen($file, "rb+");
         flock($handle, LOCK_EX);
         $x = fread($handle, filesize($file));
@@ -63,10 +63,32 @@ if($_GET['info_hash'])
                 er('Invalid info_hash');
         }
         $info_hash = bin2hex($info_hash);
-        if(file_exists($info_hash)){
-        echo getstat($info_hash);
+        if(file_exists($info_hash))
+	{
+	if(filesize($info_hash) == 0)
+	{
+		if((time() - filemtime($info_hash)) >= 86400)
+			{ // 1 day of inactivity
+				unlink($info_hash);
+				if(file_exists("multiseed/$info_hash")){
+				unlink("multiseed/$info_hash");
+                        }
+			// keep this hidden
+			// 1 days inactive if
+			}
+			else
+			{
+			// getstat is not run so that the filemtime is not changed
+			// a filesize of 0 has to have 0 seeds and 0 peers
+			$o .= '20:' . pack("H*", $info_hash) . 'd8:completei' . (int)0 . 'e10:incompletei' . (int)0 . 'ee';
+			}
+	}
+	else
+	{
+	echo getstat($info_hash);
         }
         die('ee');
+}
 }
 else
 {
@@ -83,15 +105,26 @@ else
                 {
                         if(strlen($file) == 40)
                         {
-                        if((time() - filemtime($file)) >= 172800){ // 2 days of inactivity
-                        unlink($file);
-                        if(file_exists("multiseed/$file")){
-                        unlink("multiseed/$file");
-                        }
-                        // keep this hidden
-                                }else{
+                        if(filesize($file) == 0)
+			{
+			if((time() - filemtime($file)) >= 86400)
+				{ // 1 day of inactivity
+				unlink($file);
+				if(file_exists("multiseed/$file"))
+				{
+				unlink("multiseed/$file");
+				}
+				// keep this hidden
+				// 1 days inactive if
+			}
+			else
+			{
+			// getstat is not run so that the filemtime is not changed
+				$o .= '20:' . pack("H*", $file) . 'd8:completei' . (int)0 . 'e10:incompletei' . (int)0 . 'ee';
+			}			  
+			}else{
                                 $o .= getstat($file);
-                                }
+                               }
                         }
                 }
                 closedir($handle);

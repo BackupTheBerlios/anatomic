@@ -2,14 +2,14 @@
 error_reporting(1);
 /*
 FBT2 - Flippy's BitTorrent Tracker v2 (GPL)
-in Anatomic P2P 0.1 BETA
+in Anatomic P2P 0.2 BETA
 http://anatomic.berlios.de/
 kunky 'at' users.berlios 'dot' de
 http://www.torrentz.com/fbt.html
 flippy `at` ameritech `dot` net
 */
 /*
-    Anatomic P2P modified FBT Tracker 0.1 BETA
+    Anatomic P2P modified FBT Tracker 0.2 BETA
     Copyright (C) 2005 kunkie
 
     You should have received a copy of the GNU General Public License

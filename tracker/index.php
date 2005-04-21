@@ -2,14 +2,14 @@
 error_reporting(1);
 /*
 FBT2 - Flippy's BitTorrent Tracker v2 (GPL)
-in Anatomic P2P 0.1 BETA
+in Anatomic P2P 0.2 BETA
 http://anatomic.berlios.de/
 kunky 'at' users.berlios 'dot' de
 http://www.torrentz.com/fbt.html
 flippy `at` ameritech `dot` net
 */
 /*
-    Anatomic P2P modified FBT Tracker 0.1 BETA
+    Anatomic P2P modified FBT Tracker 0.2 BETA
     Copyright (C) 2005  kunky
 
     This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,9 @@ flippy `at` ameritech `dot` net
 // Current Project Status: BETA
 // Current Mental Status: Bored intellectually...Need mental challenge.
 // Parts Coded on the London Underground
+
+// Something Important...
+// This should not have an effect on expiring torrents because no writes are made at all
 function getstat($file)
 {
         global $time;
@@ -58,7 +61,7 @@ function getstat($file)
 ?>
 <HTML>
 <HEAD>
-<TITLE>Anatomic P2P 0.1 BETA Powered By FBT2 - BitTorrent Tracker</TITLE>
+<TITLE>Anatomic P2P 0.2 BETA Powered By FBT2 - BitTorrent Tracker</TITLE>
 <STYLE TYPE="text/css">
 <!--
 BODY, TD, TH {
@@ -127,14 +130,14 @@ while (false !== ($file = readdir($handle)))
 {
         if(strlen($file) == 40)
         {
-        if((time() - filemtime($file)) >= 172800){ // 2 days of inactivity
+        	if(time() - filemtime($file)) >= 108000 && filesize($file) == 0){ // 1.25 days of inactivity
                         unlink($file);
-                        if(file_exists("multiseed/$file")){
+                if(file_exists("multiseed/$file")){
                         unlink("multiseed/$file");
-                        }
-                        }
-                        // keep this hidden
-                         else{
+                }
+                // keep this hidden
+		// should not reactivate dying torrents
+                }else{
                 echo getstat($file);
                 }
         }

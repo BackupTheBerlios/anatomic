@@ -1,6 +1,6 @@
 <?php
 /*
-    Anatomic P2P FBT Peer sharing script 0.1 BETA
+    Anatomic P2P FBT Peer sharing script 0.2 BETA
     Copyright (C) 2005  kunky
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
@@ -21,8 +21,8 @@ if(strlen($info_hash) != 20)
                 die("HASHFAIL");
 }
 $info_hash = bin2hex($info_hash);
-if(!file_exists($info_hash)){
-        die("NOPLANT");
+if(!file_exists($info_hash) && !file_exists("./multiseed/$info_hash")){
+        die("EXPIRED");
         }
 $data = $_GET['data'];
 $data = @BDecode($data);

@@ -5,11 +5,11 @@ FBT2 - Flippy's BitTorrent Tracker v2 (GPL)
 http://www.torrentz.com/fbt.html
 flippy `at` ameritech `dot` net
 
-in Anatomic P2P 0.1 BETA
+in Anatomic P2P 0.2 BETA
 http://anatomic.berlios.de/
 kunky `at` mail.berlios `dot` de
 
-    Anatomic P2P modified FBT Tracker 0.1 BETA
+    Anatomic P2P modified FBT Tracker 0.2 BETA
     Copyright (C) 2005 Kunkie
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
@@ -111,15 +111,16 @@ $info_hash = bin2hex($info_hash);
         er("Please plant the torrent file on the Network. Torrent may be dead by now.");
 
 }
-if((time() - filemtime($info_hash)) >= 172800 && $_GET['left'] != 0){ // seeds keep the torrent going
+if(filesize($info_hash) == 0 && (time() - filemtime($info_hash)) >= 86400 && $_GET['left'] != 0){ // seeds keep the torrent going
                 unlink($info_hash);
         if(file_exists("multiseed/$info_hash")){
                 unlink("multiseed/$info_hash");
                 }
         er("Torrent is dead. Nobody has accessed this torrent for two days or more. ");
         }
+	
   // Peer sharing code starts here
-  if(file_exists("multiseed/$info_hash")){   // checks to see if multiseed file is present
+  if(file_exists("multiseed/$info_hash") && filesize($info_hash) != 0){   // checks to see if multiseed file is present
   $data = @file_get_contents("multiseed/$info_hash");  // reads data from multiseed file
    $data2 = explode(":",$data, 2); // $data2[0] is the timestamp
    if((time() - (int)$data2[0]) >= 900){  // every 15 mins
@@ -151,16 +152,21 @@ if((time() - filemtime($info_hash)) >= 172800 && $_GET['left'] != 0){ // seeds k
         fwrite($handle, $new_data);
         flock($handle, LOCK_UN);
         fclose($handle);
-
-     require("BEncode.php"); // I cannot avoid it :-(.  I am a lazy coder
+	
+	if(filesize($info_hash) == 0) // i.e. if it has changed as a result of the peer cleanup to no users
+	{
+	// do nothing
+	}
+	else
+	{
+	 require("BEncode.php"); // I cannot avoid it :-(.  I am a lazy coder
          $handle2 = fopen($info_hash, "rb+");
         flock($handle2, LOCK_EX);
         $x = fread($handle2, filesize($info_hash));
         flock($handle2, LOCK_UN);
         fclose($handle2);
          $no_peers = intval(strlen($x) / 7);
-          if($no_peers != 0){
-              $peers = array();
+                       $peers = array();
           for($j=0;$j<$no_peers;$j++)
         {
 
@@ -191,17 +197,20 @@ if((time() - filemtime($info_hash)) >= 172800 && $_GET['left'] != 0){ // seeds k
                           }
                           }
                           fclose($fp);
-
-                        $minfo = fopen("multiseed/$info_hash", "rb+");
+			  
+			  if($fp == "EXPIRED"){ // keeps the single tracker torrent going
+				unlink("multiseed/$info_hash");
+				}
+				else{
+				$minfo = fopen("multiseed/$info_hash", "rb+");
                         ftruncate($minfo, 0);
                         $times = time() . ":" . $data2[1];
                         fwrite($minfo, $times);
                          fclose($minfo);
+			 }
 
-        }else{
-              // do nothin'
-                        }
-
+      
+	}
      }
      }
   // Peer sharing code ends here
