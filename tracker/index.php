@@ -130,7 +130,7 @@ while (false !== ($file = readdir($handle)))
 {
         if(strlen($file) == 40)
         {
-        	if(time() - filemtime($file)) >= 108000 && filesize($file) == 0){ // 1.25 days of inactivity
+        	if((time() - filemtime($file)) >= 86400 && filesize($file) == 0){ // 1.25 days of inactivity
                         unlink($file);
                 if(file_exists("multiseed/$file")){
                         unlink("multiseed/$file");
