@@ -1,0 +1,53 @@
+Anatomic P2P TRACKER 0.2 BETA README
+====================================
+
+System Requirements
+===================
+
+PHP 4.x.x 
+Apache/IIS/Other
+Bandwidth
+
+What to do with this script?
+============================
+
+It is best to use a subdomain for this script.
+
+	Make a folder with any name e.g. 'tracker' on the web server
+	This folder NEEDS to have 'chmod 777 tracker -Rf' done on it
+	Copy all *.php files and the folder 'multiseed' into the folder
+	Everything will need to have 'chmod 777 * -Rf' done on it too
+
+Notifying a supertracker about your tracker.
+============================================
+
+This is important or else your tracker will be useless
+
+	Make sure you can access index.php without any errors
+	Visit any supertracker webpage
+	Put your tracker url in the 'Submit Tracker' box and Submit it
+	The response should be positive
+	This should be done a few times
+
+Active Supertrackers as of 22 APR 04 are:
+	http://anatomic.berlios.de/network/node-a/
+	http://anatomic.berlios.de/network/node-b/
+	
+Contact
+=======
+
+To contact me please visit:
+http://anatomic.berlios.de 
+
+or
+
+email
+
+kunky [at] mail [dot] berlios [dot] de
+
+Change at to @ and dot to .
+
+
+
+
+

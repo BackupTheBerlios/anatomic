@@ -1,0 +1,11 @@
+ANATOMIC P2P TRACKER 0.2 BETA CHANGELOG
+=======================================
+
+A torrent now dies if it has currently no seeds/peers and had no modifications 
+for the last day (86400 seconds)
+
+scrape.php does not modify expiring torrents
+
+announce.php does not peer share with dying torrents
+
+
