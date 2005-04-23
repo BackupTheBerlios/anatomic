@@ -294,17 +294,17 @@ class Plantergui:
 			self.dialog.get_widget("button7").connect("clicked", self.startplant)
 	def haltplant(self, data=None):
 		self.logbuffer.insert_with_tags_by_name(self.iter, "\rAll the buttons below have been re-enabled", "purple_foreground")
-		self.window.get_widget("button1").set_flags(gtk.SENSITIVE)
-		self.window.get_widget("button2").set_flags(gtk.SENSITIVE)
-		self.window.get_widget("button3").set_flags(gtk.SENSITIVE)
-		self.window.get_widget("expander1").set_flags(gtk.SENSITIVE)
+		self.window.get_widget("button1").set_sensitive(True)
+		self.window.get_widget("button2").set_sensitive(True)
+		self.window.get_widget("button3").set_sensitive(True)
+		self.window.get_widget("expander1").set_sensitive(True)
 		self.planting = 0
 	def startplant(self, widget, data=None):
 		self.dialog.get_widget("dialog3").destroy()
-		self.window.get_widget("button1").unset_flags(gtk.SENSITIVE)
-		self.window.get_widget("button2").unset_flags(gtk.SENSITIVE)
-		self.window.get_widget("button3").unset_flags(gtk.SENSITIVE)
-		self.window.get_widget("expander1").unset_flags(gtk.SENSITIVE)
+		self.window.get_widget("button1").set_sensitive(False)
+		self.window.get_widget("button2").set_sensitive(False)
+		self.window.get_widget("button3").set_sensitive(False)
+		self.window.get_widget("expander1").set_sensitive(False)
 		self.planting = 1
 		self.logbuffer.delete(self.logbuffer.get_start_iter(), self.logbuffer.get_end_iter())
 		self.iter = self.logbuffer.get_iter_at_offset(0)
