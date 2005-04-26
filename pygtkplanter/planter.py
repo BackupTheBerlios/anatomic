@@ -64,6 +64,9 @@ class Httpplant(threading.Thread):
 		else:
 			app.logbuffer.insert_with_tags_by_name(app.iter,"\rWARNING: USING DEFAULT SUPERTRACKER LIST. LOCAL DATA FILE IS NOT PRESENT OR TOO OLD", "red_foreground") 
 		from urllib import urlencode
+		from random import shuffle
+		shuffle(url)
+		# Single Plant
 		if self.trackers == 1:
 			app.logbuffer.insert_with_tags_by_name(app.iter,"\rAttempting Single Tracker Plant", "purple_foreground") 
 			urldict = {"plant" : 1, "client" : 1}
@@ -139,6 +142,12 @@ class Httpplant(threading.Thread):
 						if bdata2 == "TRUE":
 							if bdata.has_key("announce-list"):
 								del bdata["announce-list"]
+							#hackwards compatibility
+							announcelist = []
+							for url in strackerlist:
+								url = url.replace("/cache", "/announce") 
+								announcelist.append(url)
+							bdata["announcelist"] = [announcelist]
 							stracker = stracker.replace("/cache", "/announce")
 							bdata["announce"] = stracker		
 							bdata["planted"] = 1
@@ -240,10 +249,14 @@ class Httpplant(threading.Thread):
 						except ValueError:
 							pass
 			
-			if bdata.has_key("announce-list"):
-				del bdata["announce-list"]
+			#hackwards compatibility
+			announcelist = []
+			for url in strackerlist:
+				url = url.replace("/cache", "/announce") 
+				announcelist.append(url)
+			bdata["announce-list"] = [announcelist]
 			stracker = stracker.replace("/cache", "/announce")
-			bdata["announce"] = stracker
+			bdata["announce"] = stracker	
 			bdata["planted"] = 1
 			bdata = bencode(bdata)
 			try:
