@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# this script plants torrents on the Anatomic P2P network
+# this script plants torrents on the Anatomic P2P network with a graphical interface
 # thanks to the teachers whose boring lessons gave me time to dream up this crazy idea  ;-)
 # see LICENSE.txt for license information
 import sys
@@ -14,11 +14,12 @@ try:
 except:
 	print "You need to install pygtk or GTK+2"
 	print "or set your PYTHONPATH correctly"
-	print "try export PYTHONPATH="
-	print "/usr/lib/python2.4/site-packages/"
+	print "Type 'export PYTHONPATH=/usr/lib/python2.4/site-packages/'"
 	sys.exit(1)
 import threading
 
+# This code is a mess in places
+# Httpplant is the thread that handles all web transactions
 class Httpplant(threading.Thread):
 	def __init__ ( self, filename, trackers ):
 		self.filename = filename
@@ -60,7 +61,6 @@ class Httpplant(threading.Thread):
 			except ValueError, e:
 				app.logbuffer.insert_with_tags_by_name(app.iter, "\rWARNING: local strackers.dat is not valid BEncoded data: Using defaults" , "red_foreground") 
 				url = DEFAULTURL
-                  
 		else:
 			app.logbuffer.insert_with_tags_by_name(app.iter,"\rWARNING: USING DEFAULT SUPERTRACKER LIST. LOCAL DATA FILE IS NOT PRESENT OR TOO OLD", "red_foreground") 
 		from urllib import urlencode
@@ -270,15 +270,22 @@ class Httpplant(threading.Thread):
 				app.haltplant()
 class Plantergui:
 	def __init__(self):
+		# Main window (window1) is glade driven
 		gladefile = "planter.glade"
 		windowname = "window1"
+		# This variable is for the file selector to remember the last directory
 		self.lastdirname = ""
+		# Whether this script is actively planting a torrent or not
 		self.planting = 0
 		self.window = gtk.glade.XML(gladefile, windowname)
 		self.window.get_widget("window1").connect("delete_event", self.destroy)
+		# button1 is the browse button
+		# button2 is the quit button
+		# button3 is the plant button
 		self.window.get_widget("button2").connect("clicked", self.destroy)
 		self.window.get_widget("button3").connect("clicked", self.check)
 		self.window.get_widget("button1").connect("clicked", self.browsefile)
+		# This is the main text logger that logs the planting script
 		self.log = self.window.get_widget("textview1")
 		self.logbuffer = gtk.TextBuffer(None)
 		self.log.set_buffer(self.logbuffer)
@@ -292,76 +299,106 @@ class Plantergui:
 		self.textdata = time+": Program Loaded\rAnatomic P2P Planter CVS Edition\rLicenced under the MIT / X Consortium Licence"
 		self.logbuffer.insert_with_tags_by_name(self.iter, self.textdata, "blue_foreground")
 	def check(self, widget, data=None):
+		# This function makes sure that a torrent file has been chosen
 		if self.window.get_widget("entry1").get_text() == "":
-			gladefile = "planter.glade"
-			dialogname = "dialog4"
-			self.dialog = gtk.glade.XML(gladefile, dialogname)
-			self.dialog.get_widget("dialog4").connect_object("delete_event", self.dialogdestroy, dialogname)
-			self.dialog.get_widget("button8").connect_object("clicked", self.dialogdestroy, dialogname)
+			# Error messages are not glade based anymore
+			self.dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR)
+			self.dialog.set_title("Please choose a torrent file")
+			self.dialog.set_markup("No torrent file has been chosen to plant. Please choose a valid torrent file using the 'Browse' button.")
+			self.dialog.add_buttons(gtk.STOCK_OK,gtk.RESPONSE_OK)
+			self.dialog.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+			self.dialog.connect_object("delete_event", self.dialogdestroy, self.dialog)
+			response = self.dialog.run()
+			if response == gtk.RESPONSE_OK: # the response can't be much else
+				self.dialog.destroy()					
 		else:
-			gladefile = "planter.glade"
-			dialogname = "dialog3"
-			self.dialog = gtk.glade.XML(gladefile, dialogname)
-			self.dialog.get_widget("dialog3").connect_object("delete_event", self.dialogdestroy, dialogname)
-			self.dialog.get_widget("button6").connect_object("clicked", self.dialogdestroy, dialogname)
-			self.dialog.get_widget("button7").connect("clicked", self.startplant)
+			# Tells the user to check their options
+			self.dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING)
+			self.dialog.set_title("Are you sure you want to continue?")
+			self.dialog.set_markup("Are you sure you want to plant this torrent file? Please check your options have been correctly chosen.")
+			self.dialog.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+			self.dialog.add_buttons(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OK,gtk.RESPONSE_OK)
+			self.dialog.connect_object("delete_event", self.dialogdestroy, self.dialog)
+			response = self.dialog.run()
+			if response == gtk.RESPONSE_OK:
+				self.startplant()
+			elif response == gtk.RESPONSE_CANCEL:
+				self.dialog.destroy()
 	def haltplant(self, data=None):
+		# This important function is there to reactivate the 'greyed-out' buttons
 		self.logbuffer.insert_with_tags_by_name(self.iter, "\rAll the buttons below have been re-enabled", "purple_foreground")
 		self.window.get_widget("button1").set_sensitive(True)
 		self.window.get_widget("button2").set_sensitive(True)
 		self.window.get_widget("button3").set_sensitive(True)
 		self.window.get_widget("expander1").set_sensitive(True)
 		self.planting = 0
-	def startplant(self, widget, data=None):
-		self.dialog.get_widget("dialog3").destroy()
+	def startplant(self, widget=None, data=None):
+		# This greys out buttons so that the user cannot replant twice or do anything stupid
+		self.dialog.destroy()
 		self.window.get_widget("button1").set_sensitive(False)
 		self.window.get_widget("button2").set_sensitive(False)
 		self.window.get_widget("button3").set_sensitive(False)
 		self.window.get_widget("expander1").set_sensitive(False)
+		# Planting starts now
 		self.planting = 1
 		self.logbuffer.delete(self.logbuffer.get_start_iter(), self.logbuffer.get_end_iter())
 		self.iter = self.logbuffer.get_iter_at_offset(0)
 		self.logbuffer.insert_with_tags_by_name(self.iter, self.textdata, "blue_foreground")
 		self.logbuffer.insert_with_tags_by_name(self.iter, "\rAll the buttons below have been disabled for the plant", "purple_foreground")
+		# Invokes HTTP thread
 		Httpplant(self.window.get_widget("entry1").get_text(), self.window.get_widget("spinbutton1").get_value_as_int()).start()
 	def browsefile(self, widget, data=None):
-		gladefile = "planter.glade"
-		dialogname = "filechooserdialog1"
-		self.dialog = gtk.glade.XML(gladefile, dialogname)
+		# The filedialog is not glade based anymore
+		# Simple filedialog here that only accepts torrent files
+		self.filedialog = gtk.FileChooserDialog("Browse For Torrent", action=gtk.FILE_CHOOSER_ACTION_OPEN, buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))
 		if self.lastdirname != "":
-			self.dialog.get_widget("filechooserdialog1").set_current_folder(self.lastdirname)
+			self.filedialog.set_current_folder(self.lastdirname)
 		self.torrentfilter = gtk.FileFilter()
 		self.torrentfilter.add_pattern("*.torrent")
 		self.torrentfilter.set_name("Torrent Files")
-		self.dialog.get_widget("filechooserdialog1").add_filter(self.torrentfilter)
-		self.dialog.get_widget("button4").connect_object("clicked", self.dialogdestroy, dialogname)
-		self.dialog.get_widget("button5").connect("clicked", self.takefile)
-		self.dialog.get_widget("filechooserdialog1").connect_object("delete_event", self.dialogdestroy, dialogname)
-	def takefile(self, widget, data=None):
-		filename = self.dialog.get_widget("filechooserdialog1").get_filename()
-		dirname = self.dialog.get_widget("filechooserdialog1").get_current_folder()
-		self.dialog.get_widget("filechooserdialog1").destroy()
-		self.lastdirname = dirname
-		self.window.get_widget("entry1").set_text(filename)
+		self.filedialog.add_filter(self.torrentfilter)
+		self.filedialog.connect("delete_event", lambda self, widget: self.destroy())
+		response = self.filedialog.run()
+		if response == gtk.RESPONSE_OK:
+			self.lastdirname = self.filedialog.get_current_folder()
+			self.window.get_widget("entry1").set_text(self.filedialog.get_filename())
+			self.filedialog.destroy()
+		elif response == gtk.RESPONSE_CANCEL:
+			self.filedialog.destroy()
 	def destroy(self, widget, data=None):
+		# This is so user cannot kill app while a torrent is planting
+		# The app should time out anyway after a while
 		if self.planting == 1:
-			gladefile = "planter.glade"
-			dialogname = "dialog2"
-			self.dialog = gtk.glade.XML(gladefile, dialogname)
-			self.dialog.get_widget("okbutton1").connect_object("clicked", self.dialogdestroy, dialogname)
+			self.dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR)
+			self.dialog.set_title("Error: You cannot quit while a torrent is being planted")
+			self.dialog.set_markup("\rError: You cannot quit while a torrent is being planted")
+			self.dialog.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+			self.dialog.add_buttons(gtk.STOCK_CLOSE,gtk.RESPONSE_CANCEL)
+			self.dialog.connect_object("delete_event", self.dialogdestroy, self.dialog)
+			response = self.dialog.run()
+			if response == gtk.RESPONSE_OK:
+				gtk.main_quit()
+			elif response == gtk.RESPONSE_CANCEL:
+				self.dialog.destroy()
 			return True
 		else:
-			gladefile = "planter.glade"
-			dialogname = "dialog1"
-			self.dialog = gtk.glade.XML(gladefile, dialogname)
-			self.dialog.get_widget("quitbutton").connect("clicked", self.byebye)
-			self.dialog.get_widget("cancelbutton1").connect_object("clicked", self.dialogdestroy, dialogname)
-		  	self.dialog.get_widget("dialog1").connect_object("delete_event", self.dialogdestroy, dialogname)
+			self.dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_QUESTION)
+			self.dialog.set_title("Are you sure you want to quit?")
+			self.dialog.set_markup("\rAre you sure you want to quit?")
+			self.dialog.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+			self.dialog.add_buttons(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_QUIT,gtk.RESPONSE_OK)
+			self.dialog.connect_object("delete_event", self.dialogdestroy, self.dialog)
+			response = self.dialog.run()
+			if response == gtk.RESPONSE_OK:
+				gtk.main_quit()
+			elif response == gtk.RESPONSE_CANCEL:
+				self.dialog.destroy()
 			return True
 	def dialogdestroy(self, dialogname, z=None):
-		self.dialog.get_widget(dialogname).destroy()
-	def byebye(self, widget, data=None):
-		gtk.main_quit()
+		# kills all dialogs
+		dialogname.destroy()
+		
+# not quite sure where this is meant to go
 gtk.threads_init()
 try:
 	app = Plantergui()

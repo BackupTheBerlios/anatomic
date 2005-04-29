@@ -1,4 +1,5 @@
 # Written by Petru Paler, Uoti Urpala, Ross Cohen and John Hoffman
+# Included in Anatomic P2P
 # see LICENSE.txt for license information
 
 from types import IntType, LongType, StringType, ListType, TupleType, DictType
