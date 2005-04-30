@@ -29,6 +29,7 @@ class Httpplant(threading.Thread):
 		from bencode import bencode, bdecode
 		from sha import sha
 		import os
+		import time
 		try:
 			f = open(self.filename, "r")
 		except IOError, e:
@@ -52,7 +53,7 @@ class Httpplant(threading.Thread):
 			try:
 				f = open('strackers.dat', "r")
 			except IOError, e:
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot open file: ", e.filename, "red_foreground")
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot open file: "+str(e.filename), "red_foreground")
 			file = f.read()
 			f.close()
 			try:
@@ -112,7 +113,7 @@ class Httpplant(threading.Thread):
 				opener = urllib2.build_opener()
 				response = opener.open(t).read()
 			except IOError, e:
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again"+e, "blue_foreground")
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again"+str(e), "blue_foreground")
 			else:
 				message = bdecode(response)
 				import types
@@ -219,7 +220,7 @@ class Httpplant(threading.Thread):
 					opener = urllib2.build_opener()
 					response = opener.open(t).read()
 				except IOError, e:
-					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again - "+e , "red_foreground")  	 
+					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again - "+str(e) , "red_foreground")  	 
 				else:
 					message = bdecode(response)
 					if type(message) == types.DictType and message.has_key("failure reason"):
@@ -262,7 +263,7 @@ class Httpplant(threading.Thread):
 			try:
 				f = open(self.filename, "w")
 			except IOError, e:
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+e.filename, "green_foreground")    
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+str(e.filename), "green_foreground")    
 			else:
 				file = f.write(bdata)
 				f.close()
