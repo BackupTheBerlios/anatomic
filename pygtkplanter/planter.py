@@ -31,7 +31,7 @@ class Httpplant(threading.Thread):
 		import os
 		import time
 		try:
-			f = open(self.filename, "r")
+			f = open(self.filename, "rb")
 		except IOError, e:
 			app.logbuffer.insert_with_tags_by_name(app.iter, "\rFATAL ERROR: Cannot open file: ", e.filename , "red_foreground")
 			app.haltplant()
@@ -154,7 +154,7 @@ class Httpplant(threading.Thread):
 							bdata["planted"] = 1
 							bdata = bencode(bdata)
 							try:
-								f = open(self.filename, "w")
+								f = open(self.filename, "wb")
 							except IOError, e:
 								app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+e.filename, "red_foreground")  
 							else:
@@ -261,7 +261,7 @@ class Httpplant(threading.Thread):
 			bdata["planted"] = 1
 			bdata = bencode(bdata)
 			try:
-				f = open(self.filename, "w")
+				f = open(self.filename, "wb")
 			except IOError, e:
 				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+str(e.filename), "green_foreground")    
 			else:
