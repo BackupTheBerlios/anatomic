@@ -6,7 +6,7 @@
 # thanks to the teachers whose boring lessons gave me time to dream up this crazy idea  ;)
 # see LICENSE.txt for license information
 
-from BitTornado.bencode import *
+from bencode import bencode, bdecode
 from urllib import urlencode
 import os
 from sys import argv
