@@ -4,7 +4,7 @@
 # see LICENSE.txt for license information
 import sys
 try:
-	import pygtk	
+	import pygtk
 	pygtk.require("2.0")
 except:
 	pass
@@ -33,18 +33,24 @@ class Httpplant(threading.Thread):
 		try:
 			f = open(self.filename, "rb")
 		except IOError, e:
+			gtk.gdk.threads_enter()
 			app.logbuffer.insert_with_tags_by_name(app.iter, "\rFATAL ERROR: Cannot open file: ", e.filename , "red_foreground")
 			app.haltplant()
+			gtk.gdk.threads_leave()
 			sys.exit()
 		file = f.read()
-		f.close() 
+		f.close()
 		try:
 			bdata = bdecode(file)
 			if bdata.has_key("planted"):
+				gtk.gdk.threads_enter()
 				app.logbuffer.insert_with_tags_by_name(app.iter, "\rWARNING: The Torrent is being REPLANTED", "red_foreground")
+				gtk.gdk.threads_leave()
 		except ValueError, e:
-			app.logbuffer.insert_with_tags_by_name(app.iter, "\rtorrent file is not valid BEncoded data", "red_foreground")
+			gtk.gdk.threads_enter()
+			app.logbuffer.insert_with_tags_by_name(app.iter, "\rTorrent file is not valid BEncoded data", "red_foreground")
 			app.haltplant()
+			gtk.gdk.threads_leave()
 			sys.exit(2)
 		infohash = sha(bencode(bdata['info'])).digest()
 		DEFAULTURL = ["http://anatomic.berlios.de/network/node-b/cache.php", "http://anatomic.berlios.de/network/node-a/cache.php"]
@@ -53,23 +59,31 @@ class Httpplant(threading.Thread):
 			try:
 				f = open('strackers.dat', "r")
 			except IOError, e:
+				gtk.gdk.threads_enter()
 				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot open file: "+str(e.filename), "red_foreground")
+				gtk.gdk.threads_leave()
 			file = f.read()
 			f.close()
 			try:
 				b2data = bdecode(file)
 				url = b2data
 			except ValueError, e:
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rWARNING: local strackers.dat is not valid BEncoded data: Using defaults" , "red_foreground") 
+				gtk.gdk.threads_enter()
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rWARNING: local strackers.dat is not valid BEncoded data: Using defaults" , "red_foreground")
+				gtk.gdk.threads_leave()
 				url = DEFAULTURL
 		else:
-			app.logbuffer.insert_with_tags_by_name(app.iter,"\rWARNING: USING DEFAULT SUPERTRACKER LIST. LOCAL DATA FILE IS NOT PRESENT OR TOO OLD", "red_foreground") 
+			gtk.gdk.threads_enter()
+			app.logbuffer.insert_with_tags_by_name(app.iter,"\rWARNING: USING DEFAULT SUPERTRACKER LIST. LOCAL DATA FILE IS NOT PRESENT OR TOO OLD", "red_foreground")
+			gtk.gdk.threads_leave()
 		from urllib import urlencode
 		from random import shuffle
 		shuffle(url)
 		# Single Plant
 		if self.trackers == 1:
-			app.logbuffer.insert_with_tags_by_name(app.iter,"\rAttempting Single Tracker Plant", "purple_foreground") 
+			gtk.gdk.threads_enter()
+			app.logbuffer.insert_with_tags_by_name(app.iter,"\rAttempting Single Tracker Plant", "purple_foreground")
+			gtk.gdk.threads_leave()
 			urldict = {"plant" : 1, "client" : 1}
 			urldict = urlencode(urldict)
 			urlend = "?"
@@ -81,7 +95,7 @@ class Httpplant(threading.Thread):
 				try:
 					import urllib2
 					f = urllib2.Request(x)
-					f.add_header('User-agent', 'Anatomic P2P Planter GUI CVS Edition (S)  +http://anatomic.berlios.de/' ) 
+					f.add_header('User-agent', 'Anatomic P2P Planter GUI CVS Edition (S)  +http://anatomic.berlios.de/' )
 					opener = urllib2.build_opener()
 					data = opener.open(f).read()
 				except IOError:
@@ -91,15 +105,17 @@ class Httpplant(threading.Thread):
 						bdata3 = bdecode(data)
 					except ValueError:
 						pass
-					else:  
+					else:
 						if len(bdata3) >= 8:
 							status = 1 # i.e. successful first stage
 							url.remove(stracker) # url becomes a list of other supertrackers
 							break
-			# if all of the strackers have been cycled through and nothing useful has been replied then die				
+			# if all of the strackers have been cycled through and nothing useful has been replied then die
 			if status == 0:
-				app.logbuffer.insert_with_tags_by_name(app.iter,"\rError: No Response from any nodes. Please run anaupdatesnodes", "red_foreground") 
+				gtk.gdk.threads_enter()
+				app.logbuffer.insert_with_tags_by_name(app.iter,"\rError: No Response from any nodes. Please run anaupdatesnodes", "red_foreground")
 				app.haltplant()
+				gtk.gdk.threads_leave()
 				sys.exit(2)
 			# or else
 			# bdata3 is a single tracker left behind. tracker is going to have the querystring concatenated on it
@@ -109,20 +125,28 @@ class Httpplant(threading.Thread):
 			tracker += urlencode({"client" : 1, "plant" : infohash})
 			try:
 				t = urllib2.Request(tracker)
-				t.add_header('User-agent', 'Anatomic P2P Planter GUI CVS Edition (S)  +http://anatomic.berlios.de/' ) 
+				t.add_header('User-agent', 'Anatomic P2P Planter GUI CVS Edition (S)  +http://anatomic.berlios.de/' )
 				opener = urllib2.build_opener()
 				response = opener.open(t).read()
 			except IOError, e:
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again"+str(e), "blue_foreground")
+				gtk.gdk.threads_enter()
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again: "+str(e), "red_foreground")
+				app.haltplant()
+				gtk.gdk.threads_leave()
+				sys.exit(1)
 			else:
 				message = bdecode(response)
 				import types
 				if type(message) == types.DictType and message.has_key("failure reason"):
+					gtk.gdk.threads_enter()
 					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: "+message["failure reason"], "red_foreground")
 					app.haltplant()
+					gtk.gdk.threads_leave()
 					sys.exit(1)
 				else:
+					gtk.gdk.threads_enter()
 					app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from tracker: "+message, "red_foreground")
+					gtk.gdk.threads_leave()
 					import random
 					strackerlist = [random.choice(url), stracker] # this list contains a stracker and a backup stracker
 					qstring = urlencode({"client" : 1, "tpush" : bdata3})
@@ -131,12 +155,14 @@ class Httpplant(threading.Thread):
 						z += qstring
 						try:
 							f3 = urllib2.Request(z)
-							f3.add_header('User-agent', 'Anatomic P2P Planter GUI CVS Edition (S)  +http://anatomic.berlios.de/' ) 
+							f3.add_header('User-agent', 'Anatomic P2P Planter GUI CVS Edition (S)  +http://anatomic.berlios.de/' )
 							opener = urllib2.build_opener()
 							data = opener.open(f3).read()
 						except IOError:
-							app.logbuffer.insert_with_tags_by_name(app.iter, "\rNo response from Supernode: Please try again.", "red_foreground") 
+							gtk.gdk.threads_enter()
+							app.logbuffer.insert_with_tags_by_name(app.iter, "\rNo response from Supernode: Please try again.", "red_foreground")
 							app.haltplant()
+							gtk.gdk.threads_leave()
 							sys.exit(1)
 					try:
 						bdata2 = bdecode(data)
@@ -146,31 +172,43 @@ class Httpplant(threading.Thread):
 							#hackwards compatibility
 							announcelist = []
 							for url in strackerlist:
-								url = url.replace("/cache", "/announce") 
+								url = url.replace("/cache", "/announce")
 								announcelist.append(url)
 							bdata["announcelist"] = [announcelist]
 							stracker = stracker.replace("/cache", "/announce")
-							bdata["announce"] = stracker		
+							bdata["announce"] = stracker
 							bdata["planted"] = 1
 							bdata = bencode(bdata)
 							try:
 								f = open(self.filename, "wb")
 							except IOError, e:
-								app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+e.filename, "red_foreground")  
+								gtk.gdk.threads_enter()
+								app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+e.filename, "red_foreground")
+								gtk.gdk.threads_leave()
 							else:
 								file = f.write(bdata)
 								f.close()
-								app.logbuffer.insert_with_tags_by_name(app.iter, "\rTorrent Successfully Planted on Anatomic P2P", "green_foreground")  
-						else: 
-							app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Supernode Response is very unexpected: "+bdata2, "red_foreground")   
+								gtk.gdk.threads_enter()
+								app.logbuffer.insert_with_tags_by_name(app.iter, "\rTorrent Successfully Planted on Anatomic P2P", "green_foreground")
+								gtk.gdk.threads_leave()
+						else:
+							gtk.gdk.threads_enter()
+							app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Supernode Response is very unexpected: "+bdata2, "red_foreground")
+							gtk.gdk.threads_leave()
 					except ValueError:
-							app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Supernode Response corrupt" , "red_foreground")  		
+							gtk.gdk.threads_enter()
+							app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Supernode Response corrupt" , "red_foreground")
+							gtk.gdk.threads_leave()
+					gtk.gdk.threads_enter()
 					app.haltplant()
+					gtk.gdk.threads_leave()
 					sys.exit()
 		else:
 			needed = self.trackers
-			app.logbuffer.insert_with_tags_by_name(app.iter,"\rAttempting MultiPlant", "purple_foreground") 
- 			qstring = "?" #querystring
+			gtk.gdk.threads_enter()
+			app.logbuffer.insert_with_tags_by_name(app.iter,"\rAttempting MultiPlant", "purple_foreground")
+			gtk.gdk.threads_leave()
+			qstring = "?" #querystring
 			qstring += urlencode({"multiseed" : needed, "client" : 1})
 			status = 0
 			import types
@@ -181,7 +219,7 @@ class Httpplant(threading.Thread):
 				try:
 					import urllib2
 					f = urllib2.Request(x)
-					f.add_header('User-agent', 'Anatomic P2P Planter (MS) GUI CVS Edition +http://anatomic.berlios.de/' ) 
+					f.add_header('User-agent', 'Anatomic P2P Planter (MS) GUI CVS Edition +http://anatomic.berlios.de/' )
 					opener = urllib2.build_opener()
 					data = opener.open(f).read()
 				except IOError:
@@ -191,17 +229,19 @@ class Httpplant(threading.Thread):
 						bdata3 = bdecode(data)
 					except ValueError:
 						pass
-					else: 			
+					else:
 						if type(bdata3) == types.ListType:
 							status = 1 # i.e. successful first stage
 							trackers = bdata3
 							url.remove(stracker)
 					break
-					
+
 			if status == 0:
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: No valid Response from any nodes. Please run anaupdatesnodes or lower the required trackers" , "red_foreground")  	 
+				gtk.gdk.threads_enter()
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: No valid Response from any nodes. Please run anaupdatesnodes or lower the required trackers" , "red_foreground")
 				app.haltplant()
-				sys.exit(2)	
+				gtk.gdk.threads_leave()
+				sys.exit(2)
 			import copy
 			trackers2 = copy.deepcopy(trackers)
 			z = trackers2[0]
@@ -216,29 +256,35 @@ class Httpplant(threading.Thread):
 				tracker += qstring
 				try:
 					t = urllib2.Request(tracker)
-					t.add_header('User-agent', 'Anatomic P2P Planter (MS) GUI CVS Edition +http://anatomic.berlios.de/' ) 
+					t.add_header('User-agent', 'Anatomic P2P Planter (MS) GUI CVS Edition +http://anatomic.berlios.de/' )
 					opener = urllib2.build_opener()
 					response = opener.open(t).read()
 				except IOError, e:
-					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again - "+str(e) , "red_foreground")  	 
+					gtk.gdk.threads_enter()
+					app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: Tracker cannot be accessed. Please Try Again - "+str(e) , "red_foreground")
+					gtk.gdk.threads_leave()
 				else:
 					message = bdecode(response)
 					if type(message) == types.DictType and message.has_key("failure reason"):
-						app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: "+message["failure reason"] , "red_foreground")  	 
- 					else:
-						app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from tracker: "+message , "purple_foreground")   
+						gtk.gdk.threads_enter()
+						app.logbuffer.insert_with_tags_by_name(app.iter, "\rError: "+message["failure reason"] , "red_foreground")
+						gtk.gdk.threads_leave()
+					else:
+						gtk.gdk.threads_enter()
+						app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from tracker: "+message , "purple_foreground")
+						gtk.gdk.threads_leave()
 			import random
-			strackerlist = [random.choice(url), stracker] 
+			strackerlist = [random.choice(url), stracker]
 			for tracker in trackers:
 				qstring = "?"
 				qstring += urlencode({"client" : 1, "tpush" : tracker})
 				stracker = strackerlist[1] # this is the important stracker. [0] is a backup
-				for z in strackerlist:	
+				for z in strackerlist:
 					z += qstring
 					try:
 						import urllib2
 						f = urllib2.Request(z)
-						f.add_header('User-agent', 'Anatomic P2P Planter (MS) GUI CVS Edition +http://anatomic.berlios.de/' ) 
+						f.add_header('User-agent', 'Anatomic P2P Planter (MS) GUI CVS Edition +http://anatomic.berlios.de/' )
 						opener = urllib2.build_opener()
 						data = opener.open(f).read()
 					except IOError:
@@ -246,29 +292,36 @@ class Httpplant(threading.Thread):
 					else:
 						try:
 							bdata3 = bdecode(data)
-							app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from Supertracker: "+bdata3, "purple_foreground")   
+							gtk.gdk.threads_enter()
+							app.logbuffer.insert_with_tags_by_name(app.iter, "\rMessage from Supertracker: "+bdata3, "purple_foreground")
+							gtk.gdk.threads_leave()
 						except ValueError:
 							pass
-			
+
 			#hackwards compatibility
 			announcelist = []
 			for url in strackerlist:
-				url = url.replace("/cache", "/announce") 
+				url = url.replace("/cache", "/announce")
 				announcelist.append(url)
 			bdata["announce-list"] = [announcelist]
 			stracker = stracker.replace("/cache", "/announce")
-			bdata["announce"] = stracker	
+			bdata["announce"] = stracker
 			bdata["planted"] = 1
 			bdata = bencode(bdata)
 			try:
 				f = open(self.filename, "wb")
 			except IOError, e:
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+str(e.filename), "green_foreground")    
+				gtk.gdk.threads_enter()
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rERROR: Cannot write to file: "+str(e.filename), "green_foreground")
+				gtk.gdk.threads_leave()
 			else:
 				file = f.write(bdata)
 				f.close()
-				app.logbuffer.insert_with_tags_by_name(app.iter, "\rTorrent Successfully MultiPlanted on Anatomic P2P (if there are no errors above)", "green_foreground")   
+				gtk.gdk.threads_enter()
+				app.logbuffer.insert_with_tags_by_name(app.iter, "\rTorrent Successfully MultiPlanted on Anatomic P2P (if there are no errors above)", "green_foreground")
 				app.haltplant()
+				gtk.gdk.threads_leave()
+
 class Plantergui:
 	def __init__(self):
 		# Main window (window1) is glade driven
@@ -276,6 +329,8 @@ class Plantergui:
 		windowname = "window1"
 		# This variable is for the file selector to remember the last directory
 		self.lastdirname = ""
+		# Layers of iteration
+		self.handlerdepth = 0
 		# Whether this script is actively planting a torrent or not
 		self.planting = 0
 		self.window = gtk.glade.XML(gladefile, windowname)
@@ -311,12 +366,12 @@ class Plantergui:
 			self.dialog.connect_object("delete_event", self.dialogdestroy, self.dialog)
 			response = self.dialog.run()
 			if response == gtk.RESPONSE_OK: # the response can't be much else
-				self.dialog.destroy()					
+				self.dialog.destroy()
 		else:
 			# Tells the user to check their options
 			self.dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING)
 			self.dialog.set_title("Are you sure you want to continue?")
-			self.dialog.set_markup("Are you sure you want to plant this torrent file? Please check your options have been correctly chosen.")
+			self.dialog.set_markup("Are you sure you want to plant this torrent file? Please check your options have been correctly chosen.\rMake sure that you have a complete copy of the file(s) before submitting.")
 			self.dialog.set_position(gtk.WIN_POS_CENTER_ALWAYS)
 			self.dialog.add_buttons(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OK,gtk.RESPONSE_OK)
 			self.dialog.connect_object("delete_event", self.dialogdestroy, self.dialog)
@@ -398,13 +453,11 @@ class Plantergui:
 	def dialogdestroy(self, dialogname, z=None):
 		# kills all dialogs
 		dialogname.destroy()
-		
-# not quite sure where this is meant to go
-gtk.threads_init()
 try:
-	app = Plantergui()
+	gtk.threads_init()
 	gtk.gdk.threads_enter()
-	gtk.main()
+	app = Plantergui()
 	gtk.gdk.threads_leave()
+	gtk.main()
 except KeyboardInterrupt:
 	sys.exit(1)
