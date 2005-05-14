@@ -432,9 +432,7 @@ class Plantergui:
 			self.dialog.add_buttons(gtk.STOCK_CLOSE,gtk.RESPONSE_CANCEL)
 			self.dialog.connect_object("delete_event", self.dialogdestroy, self.dialog)
 			response = self.dialog.run()
-			if response == gtk.RESPONSE_OK:
-				gtk.main_quit()
-			elif response == gtk.RESPONSE_CANCEL:
+			if response == gtk.RESPONSE_CANCEL: # the response can't be much else
 				self.dialog.destroy()
 			return True
 		else:
@@ -457,7 +455,7 @@ try:
 	gtk.threads_init()
 	gtk.gdk.threads_enter()
 	app = Plantergui()
-	gtk.gdk.threads_leave()
 	gtk.main()
+	gtk.gdk.threads_leave()
 except KeyboardInterrupt:
 	sys.exit(1)
