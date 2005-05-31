@@ -65,11 +65,13 @@ for x in stracker:
 	else:
 		try:
 			bdata = bdecode(data)
-			if y not in bdata:
-				bdata.append(y) # Since it is alive it is probably useful
-			for x in bdata:
-				if x not in strackerlist:
-					strackerlist.append(x)
+			import types
+			if type(bdata) == types.ListType:
+				if y not in bdata:
+					bdata.append(y) # Since it is alive it is probably useful
+				for x in bdata:
+					if x not in strackerlist:
+						strackerlist.append(x)
 		except ValueError, e:
 			print "WARNING: No valid data received."
 if len(strackerlist) == 0:
