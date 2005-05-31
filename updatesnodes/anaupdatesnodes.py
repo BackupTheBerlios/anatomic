@@ -12,7 +12,7 @@ import os
 from sys import argv
 import time
 
-VERSION = 'CVS Edition'
+VERSION = 'CVS'
 
 print 'anaupdatesnodes.py %s - download a recent list of nodes' % VERSION
 print 'USAGE:'
@@ -33,13 +33,10 @@ if os.path.isfile('strackers.dat') is True and (time.time() - os.path.getmtime('
 		try:
 			bdata = bdecode(file)
 		except ValueError, e:
-			print "WARNING: local strackers.dat is not valid BEncoded data: Using defaults" 
+			print "WARNING: local strackers.dat is not valid BEncoded data: Using defaults"
 		else:
-			import random
 			random.shuffle(bdata)
 			url = bdata
-               
-          
 else:
 	if len(argv) == 3 and argv[1] == "--url":
 		possurl = argv[2]
@@ -52,41 +49,45 @@ else:
 
 stracker = url
 status = 0
+strackerlist = []
 for x in stracker:
+	y = x
 	x += "?strackers=1"
 	try:
 		import urllib2
 		f = urllib2.Request(x)
-		f.add_header('User-agent', 'Anatomic P2P Node Updater CVS GUIHELPER +http://anatomic.berlios.de/' ) 
+		f.add_header('User-agent', 'Anatomic P2P Node Updater CVS +http://anatomic.berlios.de/' )
 		opener = urllib2.build_opener()
 		data = opener.open(f).read()
 	except IOError, e:
-		print "ERROR: Connection failed. Please Try Again"
+		print "ERROR: Connection failed."
 		print e
 	else:
 		try:
 			bdata = bdecode(data)
-			if stracker not in bdata:
-				bdata.append(stracker) # Since it is alive it is probably useful
+			if y not in bdata:
+				bdata.append(y) # Since it is alive it is probably useful
+			for x in bdata:
+				if x not in strackerlist:
+					strackerlist.append(x)
 		except ValueError, e:
-			print "WARNING: No valid data received."           
-		else:
-			try:    
-				f2 = open('strackers.dat', "w+")
-			except IOError, e:
-				print "WARNING Cannot write file:", e.filename
-			else:
-				f2.write(data)
-				f2.close
-				print "Data successfully downloaded and written"
-				status = 1
-				break
-if status == 0:
+			print "WARNING: No valid data received."
+if len(strackerlist) == 0:
 	print "ERROR: No useful data could be found. Please visit http://anatomic.berlios.de"
 	print "for more help"
+else:
+	try:
+		random.shuffle(strackerlist)
+		bedata = bencode(strackerlist)
+		f2 = open('strackers.dat', "w+")
+	except IOError, e:
+		print "WARNING Cannot write file:", e.filename
+	else:
+		f2.write(bedata)
+		f2.close
+		print "Data successfully downloaded and written"
 
-		
-    
+
 
 
 
