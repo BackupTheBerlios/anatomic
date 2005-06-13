@@ -19,7 +19,6 @@
 */
 // This script is not needed in normal tracker operation
 // It was used by me to debug peer sharing and accepts info_hash like index.php
-
 if(isset($_GET['info_hash'])){
    $info_hash = $_GET['info_hash'];
 echo "This script forces peers to be shared<BR>";
@@ -60,15 +59,16 @@ echo "The info hash is: " . $info_hash;
         flock($handle, LOCK_UN);
         fclose($handle);
 
-     require("BEncode.php"); // I cannot avoid it :-(.  I am a lazy coder
-         $handle2 = fopen($info_hash, "rb+");
-        flock($handle2, LOCK_EX);
-        $x = fread($handle2, filesize($info_hash));
-        flock($handle2, LOCK_UN);
-        fclose($handle2);
+         // I was stupid to reopen the file again when the data is already in memory
+         $x = $new_data;
          $no_peers = intval(strlen($x) / 7);
-          if($no_peers != 0){
-              $peers = array();
+         if($no_peers > 20)
+         {
+         $no_peers = 20; // this is so that only 20 peers eventually come out
+         }
+         if($no_peers != 0)
+         {
+              $peers1 = array();
           for($j=0;$j<$no_peers;$j++)
         {
 
@@ -79,16 +79,16 @@ echo "The info hash is: " . $info_hash;
                 $tempdata .= ':' . $port;
                 $t_peer_seed = join('', unpack("C", substr($x, $j * 7, 1)));
                 $tempdata .= ':' . $t_peer_seed ;
-
-                                   $peers[] = $tempdata;
+                $peers1[] = $tempdata;
 
                 }
-                if(count($peers) < 20){
-                 shuffle($peers);
-                }else{
-                        $peers = array_rand($peers, 20);
+                   shuffle($peers1);
+                        $peers = "l";
+                        foreach($peers1 as $url)
+                        {
+                        $peers .= strlen($url).":".$url;
                         }
-                        $peers = BEncode($peers);
+                        $peers .= "e";
                         $url = str_replace("announce", "multiseed", $data2[1]);
                $url .= "?info_hash=" . urlencode(pack("H*", $info_hash)) . "&data=" . urlencode($peers);
         $fp = fopen($url, "rb");

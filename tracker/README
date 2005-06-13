@@ -15,7 +15,8 @@ It is best to use a subdomain for this script.
 
 	Make a folder with any name e.g. 'tracker' on the web server
 	This folder NEEDS to have 'chmod 777 tracker -Rf' done on it
-	Copy all *.php files and the folder 'multiseed' into the folder
+	Copy all *.php files into this folder
+	Make a folder called 'multiseed'
 	Everything will need to have 'chmod 777 * -Rf' done on it too
 
 Notifying a supertracker about your tracker.

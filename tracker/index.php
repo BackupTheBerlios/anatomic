@@ -2,14 +2,14 @@
 error_reporting(1);
 /*
 FBT2 - Flippy's BitTorrent Tracker v2 (GPL)
-in Anatomic P2P 0.2 BETA
+in Anatomic P2P 0.2 beta2
 http://anatomic.berlios.de/
 kunky 'at' users.berlios 'dot' de
 http://www.torrentz.com/fbt.html
 flippy `at` ameritech `dot` net
 */
 /*
-    Anatomic P2P modified FBT Tracker 0.2 BETA
+    Anatomic P2P modified FBT Tracker 0.2 beta2
     Copyright (C) 2005  kunky
 
     This program is free software; you can redistribute it and/or modify
@@ -136,7 +136,7 @@ while (false !== ($file = readdir($handle)))
                         unlink("multiseed/$file");
                 }
                 // keep this hidden
-		// should not reactivate dying torrents
+                // should not reactivate dying torrents
                 }else{
                 echo getstat($file);
                 }

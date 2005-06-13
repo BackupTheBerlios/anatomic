@@ -2,7 +2,7 @@
 error_reporting(1);
 /*
 FBT2 - Flippy's BitTorrent Tracker v2 (GPL)
-in Anatomic P2P 0.2 BETA
+in Anatomic P2P 0.2 beta2
 http://anatomic.berlios.de/
 kunky 'at' users.berlios 'dot' de
 http://www.torrentz.com/fbt.html
@@ -19,22 +19,28 @@ flippy `at` ameritech `dot` net
 // Current Project Status: Beta
 // Current Mental Status: Bored with school. Need mental challenge.
 // Parts Coded on the London Underground
-function ping($url){
-                $url = urldecode($url);       // To make sure that it is urldecoded
-                $url .= "?ping=1";       // concatenates ?ping=1 to end
-                    if(@file_get_contents($url) == "PONG"){
-                                return TRUE; }
-                                else {
-                                return FALSE;
-                                }
-                                }
+function ping($url)
+{
+$url = urldecode($url);       // To make sure that it is urldecoded
+$url .= "?ping=1";       // concatenates ?ping=1 to end
+if(@file_get_contents($url) == "PONG")
+{
+    return TRUE;
+}
+else
+{
+    return FALSE;
+}
+} // End of Function
  function er($txt)
 {
         die('d14:failure reason' . strlen($txt) . ':' . $txt . 'e');
 }
- if(isset($_GET['multiplant']) && isset($_GET['url'])){
-        $info_hash = $_GET["multiplant"];
-         if(strlen($info_hash) != 20)
+if(isset($_GET['multiplant']) && isset($_GET['url']))
+{
+// more than one tracker plant
+    $info_hash = $_GET["multiplant"];
+    if(strlen($info_hash) != 20)
 {
         $info_hash = stripcslashes($_GET['multiplant']);
 }
@@ -43,18 +49,20 @@ if(strlen($info_hash) != 20)
         er('Invalid info_hash');
 }
 $info_hash = bin2hex($info_hash);
-if(file_exists("multiseed/$info_hash") or file_exists($info_hash)){
+if(file_exists("multiseed/$info_hash") or file_exists($info_hash))
+{
         er('This torrent file has already been planted');
         }
 
 // infohash redundancy check finished
-if(substr($_GET["url"],0,7) != "http://"){
+if(substr($_GET["url"],0,7) != "http://") // only http protocol
+{
         er('Other URL is not correct');
         }
-         $url = $_GET["url"];
-         if(!ping($url)){
-                 er('Other tracker not alive. Please Try Again');
-                       }
+          $url = $_GET["url"];
+          if(!ping($url)){
+          er('Other tracker not alive. Please Try Again');
+          }
         // or else plant as usual
         $handle = fopen($info_hash, "w");
 fclose($handle);
@@ -66,7 +74,8 @@ fclose($handle2);
 die("7:SUCCESS");
 }
 
-if(isset($_GET["plant"])){
+if(isset($_GET["plant"]))
+{
 // a one tracker plant
         $info_hash = $_GET['plant'];
         if(strlen($info_hash) != 20)

@@ -5,11 +5,11 @@ FBT2 - Flippy's BitTorrent Tracker v2 (GPL)
 http://www.torrentz.com/fbt.html
 flippy `at` ameritech `dot` net
 
-in Anatomic P2P 0.2 BETA
+in Anatomic P2P 0.2 beta2
 http://anatomic.berlios.de/
 kunky `at` mail.berlios `dot` de
 
-    Anatomic P2P modified FBT Tracker 0.2 BETA
+    Anatomic P2P modified FBT Tracker 0.2 beta2
     Copyright (C) 2005 Kunkie
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
@@ -35,6 +35,7 @@ $_GET['numwant'] = 50;
 if($_GET['ping'] == 1){
 die("PONG");
 }
+// the pong reply distinguishes this announce.php from the one in the supernode package
 
 // Code from PHPBTTRACKER
 
@@ -88,50 +89,54 @@ if (isset($_SERVER["HTTP_X_FORWARDED_FOR"]))
 
 function er($txt)
 {
-        die('d14:failure reason' . strlen($txt) . ':' . $txt . 'e');
+    die('d14:failure reason' . strlen($txt) . ':' . $txt . 'e');
 }
 if($_GET['compact'] != 1)
 {
-        er('This tracker requires new tracker protocol. Please check your client for updates. Latest Generic, BitTornado or Azureus client recommended.');
+    er('This tracker requires new tracker protocol. Please check your client for updates. Latest Generic, BitTornado or Azureus client recommended.');
 }
 
 $info_hash = $_GET['info_hash'];
 if(strlen($info_hash) != 20)
 {
-        $info_hash = stripcslashes($_GET['info_hash']);
+    $info_hash = stripcslashes($_GET['info_hash']);
 }
 if(strlen($info_hash) != 20)
 {
-        er('Invalid info_hash');
+    er('Invalid info_hash');
 }
 $info_hash = bin2hex($info_hash);
 
  if(!file_exists($info_hash))
 {
-        er("Please plant the torrent file on the Network. Torrent may be dead by now.");
+    er("Please plant the torrent file on the Network. Torrent may be dead by now.");
 
 }
-if(filesize($info_hash) == 0 && (time() - filemtime($info_hash)) >= 86400 && $_GET['left'] != 0){ // seeds keep the torrent going
-                unlink($info_hash);
-        if(file_exists("multiseed/$info_hash")){
-                unlink("multiseed/$info_hash");
-                }
-        er("Torrent is dead. Nobody has accessed this torrent for two days or more. ");
-        }
-	
+if(filesize($info_hash) == 0 && (time() - filemtime($info_hash)) >= 86400 && $_GET['left'] != 0)
+{ // seeds keep the torrent going i.e. $_GET['left'] == 0 means no unlinking
+    unlink($info_hash);
+if(file_exists("multiseed/$info_hash"))
+{
+    unlink("multiseed/$info_hash");
+}
+er("Torrent is dead. Nobody has accessed this torrent for two days or more. ");
+}
+
   // Peer sharing code starts here
-  if(file_exists("multiseed/$info_hash") && filesize($info_hash) != 0){   // checks to see if multiseed file is present
-  $data = @file_get_contents("multiseed/$info_hash");  // reads data from multiseed file
-   $data2 = explode(":",$data, 2); // $data2[0] is the timestamp
-   if((time() - (int)$data2[0]) >= 900){  // every 15 mins
-       // THIS CODE REMOVES DYING PEERS
-      $time = intval((time() % 7680) / 60);
-         $handle = fopen($info_hash, "rb+");
-            flock($handle, LOCK_EX);
-        $x = fread($handle, filesize($info_hash));
-        $no_peers = intval(strlen($x) / 7);
-        for($j=0;$j<$no_peers;$j++)
-        {
+if(file_exists("multiseed/$info_hash") && filesize($info_hash) != 0)
+{   // checks to see if multiseed file is present
+    $data = @file_get_contents("multiseed/$info_hash");  // reads data from multiseed file
+    $data2 = explode(":",$data, 2); // $data2[0] is the timestamp
+if((time() - (int)$data2[0]) >= 900)
+{  // every 15 mins
+// THIS CODE REMOVES DYING PEERS
+    $time = intval((time() % 7680) / 60);
+    $handle = fopen($info_hash, "rb+");
+    flock($handle, LOCK_EX);
+    $x = fread($handle, filesize($info_hash));
+    $no_peers = intval(strlen($x) / 7);
+    for($j=0;$j<$no_peers;$j++)
+    {
                 $t_peer_seed = join('', unpack("C", substr($x, $j * 7, 1)));
                 if($t_peer_seed >= 128)
                 {
@@ -146,28 +151,29 @@ if(filesize($info_hash) == 0 && (time() - filemtime($info_hash)) >= 86400 && $_G
                 {
                         $new_data .= substr($x, $j * 7, 7);
                 }
-        }
-        rewind($handle);
-        ftruncate($handle, 0);
-        fwrite($handle, $new_data);
-        flock($handle, LOCK_UN);
-        fclose($handle);
-	
-	if(filesize($info_hash) == 0) // i.e. if it has changed as a result of the peer cleanup to no users
+    }
+rewind($handle);
+ftruncate($handle, 0);
+fwrite($handle, $new_data);
+flock($handle, LOCK_UN);
+fclose($handle);
+
+	if(strlen($new_data) == 0) // i.e. if it has changed as a result of the peer cleanup to no users
 	{
 	// do nothing
 	}
 	else
 	{
-	 require("BEncode.php"); // I cannot avoid it :-(.  I am a lazy coder
-         $handle2 = fopen($info_hash, "rb+");
-        flock($handle2, LOCK_EX);
-        $x = fread($handle2, filesize($info_hash));
-        flock($handle2, LOCK_UN);
-        fclose($handle2);
+	// woohoo no more BEncode.php - Another step towards no gpl deps
          $no_peers = intval(strlen($x) / 7);
-                       $peers = array();
-          for($j=0;$j<$no_peers;$j++)
+         $x = $new_data;
+         $no_peers = intval(strlen($x) / 7);
+         if($no_peers > 20)
+         {
+         $no_peers = 20; // this is so that only 20 peers eventually come out
+         }
+         $peers1 = array();
+        for($j=0;$j<$no_peers;$j++)
         {
 
                 $ip = unpack("C*", substr($x, $j * 7 + 1, 4));
@@ -178,7 +184,7 @@ if(filesize($info_hash) == 0 && (time() - filemtime($info_hash)) >= 86400 && $_G
                 $t_peer_seed = join('', unpack("C", substr($x, $j * 7, 1)));
                 $tempdata .= ':' . $t_peer_seed ;
 
-                                   $peers[] = $tempdata;
+                                   $peers1[] = $tempdata;
 
                 }
                 if(count($peers) < 20){
@@ -186,7 +192,13 @@ if(filesize($info_hash) == 0 && (time() - filemtime($info_hash)) >= 86400 && $_G
                 }else{
                         $peers = array_rand($peers, 20);
                         }
-                        $peers = BEncode($peers);
+                        shuffle($peers1);
+                        $peers = "l";
+                        foreach($peers1 as $url)
+                        {
+                        $peers .= strlen($url).":".$url;
+                        }
+                        $peers .= "e";
                         $url = str_replace("announce", "multiseed", $data2[1]);
                $url .= "?info_hash=" . urlencode(pack("H*", $info_hash)) . "&data=" . urlencode($peers);
         $fp = fopen($url, "rb");
@@ -197,7 +209,7 @@ if(filesize($info_hash) == 0 && (time() - filemtime($info_hash)) >= 86400 && $_G
                           }
                           }
                           fclose($fp);
-			  
+
 			  if($fp == "EXPIRED"){ // keeps the single tracker torrent going
 				unlink("multiseed/$info_hash");
 				}
@@ -209,15 +221,11 @@ if(filesize($info_hash) == 0 && (time() - filemtime($info_hash)) >= 86400 && $_G
                          fclose($minfo);
 			 }
 
-      
+
 	}
      }
      }
   // Peer sharing code ends here
-
-
-
-
 
 $peer_ip = explode('.', $ip);
 $peer_ip = pack("C*", $peer_ip[0], $peer_ip[1], $peer_ip[2], $peer_ip[3]);
