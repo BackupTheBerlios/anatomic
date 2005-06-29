@@ -88,13 +88,3 @@ else:
 		f2.write(bedata)
 		f2.close
 		print "Data successfully downloaded and written"
-
-
-
-
-
-
-
-
-
-
