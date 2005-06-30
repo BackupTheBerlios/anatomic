@@ -1,0 +1,67 @@
+Thank you for download Anatomic P2P 0.1 BETA Supernode/Supertracker scripts
+
+Anatomic P2P 0.1 BETA Supernode/Supertracker scripts, (c) kunkie 2005
+Anatomic P2P comes with ABSOLUTELY NO WARRANTY; see LICENCE.
+This is free software, and you are welcome to redistribute it
+under certain conditions; see LICENCE
+
+1. Files included:
+DIRECTORY - hashes - Probably won't be used.
+announce.php - Wrapper for old style clients to be redirected to a tracker
+BEncode.php - PHP BEncode Library - Hopefully gone by 1st RC (Release Candidate)
+BDecode.php - PHP BDecode Library - Hopefully gone by 1st RC (Release Candidate)
+cache.php - Main script. Most important functions:
+?tpush="TRACKER URL" - CONNECTS TO TRACKER AND STORES HASHES IT TRACKS
+?push="SUPERTRACKER URL" - PINGS SUPERTRACKER AND STORES IT
+?pull="hash" - RETURNS TRACKER(S) THAT HASH IS PRESENT IN
+?plant=1 - RETURNS ONE TRACKER
+?multiseed="number" - RETURNS NUMBER OF TRACKERS
+?strackers=1 - LISTS ALL SUPERTRACKERS STORED
+?trackers=1 - LISTS ALL TRACKERS STORED
+index.php - Checks which supertrackers are alive and also acts as a submittal form.
+LICENCE - GNU General Public Licence Version 2
+my.sig - Geekcode users will know what to do with this.
+README - This file
+scrape.php - Wrapper for old system to redirect to a tracker
+strackers.dat - Database file for supertrackers
+strackers.dat.example - Example database file PLEASE USE THIS IF POSSIBLE
+trackers.dat - Database file for trackers
+trackers.dat.example - Example database file DO NOT USE IF POSSIBLE
+
+2. System Requirements:
+PHP4 web server (e.g. Apache) - preferably latest version of PHP
+Bandwidth :-)
+A valid url (eg. x.dyndns.org, x.site.org) or static ip. IF POSSIBLE USE A SUBDOMAIN.
+
+3. What to do:
+Upload all PHP files and DAT files and folder hashes.
+CHMOD 777 - (please notify if this causes problems) all files.
+DO NOT PUT QUOTES IN THE URL
+Announce your supertracker to the world by:
+"KNOWN SUPERTRACKER"?push="YOUR URL"
+
+KNOWN SUPERTRACKERS AT THE PRESENT TIME (26-3-05) ARE:
+http://anatomic.berlios.de/network/node-a/cache.php
+http://anatomic.berlios.de/network/node-b/cache.php
+
+It is possible to also try:
+"YOUR URL"?push="YOUR URL"
+
+You will also need to push at least one tracker:
+"YOUR URL"?push="KNOWN TRACKER"
+
+KNOWN TRACKER AT THE PRESENT TIME (26-3-05) IS:
+http://anatomic.berlios.de/network/tracker-a/announce.php
+
+At this early stage in Anatomic P2P I would advise notifying me if a supertracker
+is made at: kunky@mail.berlios.de
+
+4. Contact
+Please visit http://anatomic.berlios.de for more information or
+email me at: kunky@mail.berlios.de
+
+
+
+
+
+
