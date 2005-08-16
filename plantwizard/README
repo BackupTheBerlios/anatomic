@@ -1,0 +1,20 @@
+Anatomic P2P Planter Wizard (0.1 Beta)
+======================================
+
+Now the process of planting (as in plant a bomb) a torrent on the Anatomic
+P2P Network has been made simple by this planter.
+
+This version needs the latest GTK runtimes and pygtk bindings from:
+http://www.pygtk.org
+http://www.gtk.org
+
+It is advised to use the version from your distribution provider.
+Mac users can also download versions from:
+http://fink.sourceforge.net
+
+Just run plantwizard.py and follow the simple instructions.
+
+For more information please visit:
+http://anatomic.berlios.de
+or email:
+kunky@mail.berlios.de
