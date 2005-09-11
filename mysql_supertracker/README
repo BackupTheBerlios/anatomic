@@ -1,0 +1,42 @@
+Anatomic P2P 0.1 RC1 MySQL Supernode/Supertracker script, (c) kunkie 2005
+Anatomic P2P comes with ABSOLUTELY NO WARRANTY; see LICENCE.
+This is free software, and you are welcome to redistribute it
+under certain conditions; see LICENSE
+
+1. System Requirements
+    PHP 4
+    MySQL Server (Version 4 or greater recommended)
+    Web server (Apache, lighttpd, IIS if you can't avoid it ;-))
+    PhpMyAdmin also recommended but not necessary
+
+2. Install
+This script is far simpler to install now.
+Create a database ( the name does not matter ).
+Run database_mysql.sql using phpmyadmin or from the command line.
+Edit common.php to match your database settings.
+Upload the files (if necessary)
+
+Visit index.php in a browser and add the following trackers and supertrackers
+using the text entry box:
+Supertracker:
+  http://anatomic.berlios.de/network/node-a/cache.php
+  http://anatomic.5gigs.com/node-c/cache.php
+  (Your own url)
+Trackers:
+  http://anatomic.berlios.de/network/tracker-a/announce.php
+  http://anatomic.5gigs.com/tracker-c/announce.php
+
+At this early stage in Anatomic P2P I would advise notifying me if a supertracker
+is made at: kunky@mail.berlios.de
+
+Thank you for supporting Anatomic P2P
+
+4. Contact
+Please visit http://anatomic.berlios.de for more information or
+email me at: kunky@mail.berlios.de
+
+
+
+
+
+
