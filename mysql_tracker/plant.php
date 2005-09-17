@@ -31,6 +31,7 @@ function ping($url)
         return FALSE;
     }
 } // End of ping
+// quote_smart is a security check from php.net
 function quote_smart($value)
 {
    // Stripslashes
@@ -70,12 +71,12 @@ if(isset($_GET['plant']))
     if(mysql_errno() == 1050)
     {
         mysql_close();
-        er('Torrent File already planted');
+        er('The torrent file has already been planted on the network.');
     }
     elseif(mysql_errno())
     {
         mysql_close();
-        er('There was a mysql error: ' . mysql_error());
+        er('There was a database error: ' . mysql_error()); // will this be any use to the user???
     }
     else
     {
@@ -99,25 +100,29 @@ if(isset($_GET['multiplant']) && isset($_GET['url']))
     // set up the database
     $db = mysql_connect($dbhost, $dbuname, $dbpasswd);
     mysql_select_db($dbname,$db);
-    $query = sprintf('CREATE TABLE `%s` (`ip_and_port` TINYBLOB NOT NULL, `seed_or_peer` TINYINT NOT NULL, `timestamp` TIMESTAMP NOT NULL , UNIQUE (ip_and_port(6))) ', mysql_real_escape_string($info_hash));
-    mysql_query($query);
-    if(mysql_errno() == 1050)
+    $query = sprintf('SHOW TABLE STATUS LIKE %s', quote_smart($info_hash . '%'));
+    $result = @mysql_query($query);
+    $row = @mysql_fetch_row($result);
+    if(is_array($row))
     {
         mysql_close();
-        er('This torrent file has already been planted');
+        er('This torrent file has already been planted');    
     }
-    // implied or else
-    if(substr($_GET["url"],0,7) != "http://") // only http protocol
+    if(substr($_GET['url'],0,7) != 'http://' && substr_count($stracker, '/announce') != 1) // only http protocol and ends with /announce
     {
         mysql_close();
-        er('Other URL is not correct. Make sure http:// is included.');
+        er('The URL of the other tracker is not correct. Make sure http:// and /announce are included.');
     }
-    $url = $_GET["url"];
+    $url = $_GET['url'];
     if(!ping($url))
     {
         mysql_close();
-         er('Other tracker not alive. Please Try Again');
+        er('Other tracker not alive. Please Try Again');
     }
+    // creation of the table goes AFTER the ping
+    // it is true to say that there is a LOT of pinging involved but it IS important
+    $query = sprintf('CREATE TABLE `%s` (`ip_and_port` TINYBLOB NOT NULL, `seed_or_peer` TINYINT NOT NULL, `timestamp` TIMESTAMP NOT NULL , UNIQUE (ip_and_port(6))) ', mysql_real_escape_string($info_hash));
+    mysql_query($query);
     $query = sprintf('INSERT INTO `multiseed` VALUES ( "%s", "%s", NOW())', mysql_real_escape_string($info_hash), quote_smart($url));
     mysql_query($query);
     if(mysql_errno() == 1146)
@@ -128,11 +133,11 @@ if(isset($_GET['multiplant']) && isset($_GET['url']))
     }
     elseif(mysql_errno())
     {
-        er('There was a mysql error: ' . mysql_error());
+        er('There was a databse error: ' . mysql_error()); // I doubt a mysql error is any use to the user but anyway
         mysql_close();
     }
     else
     {
-    die("7:SUCCESS");
+  	die('7:SUCCESS');
     }
 }

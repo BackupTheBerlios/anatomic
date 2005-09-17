@@ -17,7 +17,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-// This makes sure that the supertracker is alive
+// This makes sure that the tracker is alive
 if($_GET["ping"] == 1)
 {
     die("PONG");
@@ -32,7 +32,7 @@ if(false)
 	$_GET['event'] = 'stopped';
 }
 $_GET['numwant'] = 50;
-$_GET['ip'] = "124.231.231.213";
+$_GET['ip'] = "123.123.123.123"; // it would be good to randomise this for debug
 */
 // There is no point in including common.php and bothering about the rest if all the tracker is going to do is pong back
 include "common.php";
