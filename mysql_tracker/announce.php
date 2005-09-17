@@ -136,6 +136,7 @@ if(strlen($info_hash) != 20)
     er('Invalid info_hash');
 }
 $info_hash = bin2hex($info_hash);
+$binfo_hash = pack('H*' , $info_hash);
 $peer_ip = explode('.', $ip);
 $peer_ip = pack("C*", $peer_ip[0], $peer_ip[1], $peer_ip[2], $peer_ip[3]);
 $peer_port = pack("n*", (int)$_GET['port']);
@@ -153,7 +154,7 @@ while($row = mysql_fetch_row($result))
         if(mysql_date_parser($row[11]) <= (time() - 864000))
        {
             mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
-            $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', mysql_real_escape_string($row[0]));
+            $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', mysql_real_escape_string($binfo_hash));
             @mysql_query($query);
             mysql_close();
             er('The torrent is dead. Nobody has accessed this torrent for two days or more.');
@@ -165,7 +166,7 @@ if(!$found)
 {
     er("Please plant the torrent file on the Network. The torrent may have expired.");
 }
-$query = sprintf('SELECT `url`, UNIX_TIMESTAMP(timestamp) FROM multiseed WHERE info_hash = %s', mysql_real_escape_string($info_hash));
+$query = sprintf('SELECT `url`, UNIX_TIMESTAMP(timestamp) FROM multiseed WHERE info_hash = %s', mysql_real_escape_string($binfo_hash));
 $result = @mysql_query($query);
 // might not be multiseed at all so best keep it quiet with @
 $row = @mysql_fetch_row($result);
@@ -216,12 +217,12 @@ if(is_array($row))
             fclose($fp);
             if($fp == "EXPIRED")
             { // keeps the single tracker torrent going
-                $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s', mysql_real_escape_string($info_hash));
+                $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s', mysql_real_escape_string($binfo_hash));
                 mysql_query($query);
             }
             else
             {
-                $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' ,mysql_real_escape_string($info_hash));
+                $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' , mysql_real_escape_string($binfo_hash);
                 mysql_query($query);
             }
         }

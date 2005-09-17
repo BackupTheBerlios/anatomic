@@ -26,11 +26,12 @@ if(isset($_GET['info_hash']))
     {
         die('Invalid info hash');
     }
+    $binfo_hash = pack('H*' , $info_hash); // this is the info_hash in binary
     echo 'This script forces a peer transfer (multiseed) <br />';
     echo 'The info hash of the torrent is: ' . $info_hash . '<br />';
     $db = mysql_connect($dbhost, $dbuname, $dbpasswd);
     mysql_select_db($dbname,$db);
-    $query = sprintf('SELECT `url` FROM `multiseed` WHERE `info_hash` = \'%s\' ', mysql_real_escape_string($info_hash));
+    $query = sprintf('SELECT `url` FROM `multiseed` WHERE `info_hash` = \'%s\' ', mysql_real_escape_string($binfo_hash));
     $result = mysql_query($query);
     if(mysql_errno() == 1054)
     {
@@ -96,7 +97,7 @@ if(isset($_GET['info_hash']))
     }
     elseif($fp == "ACCEPTED")
     {
-        $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' ,mysql_real_escape_string($info_hash));
+        $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' , mysql_real_escape_string($binfo_hash);
         mysql_query($query);
     }
     mysql_close();

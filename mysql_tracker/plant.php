@@ -123,23 +123,24 @@ if(isset($_GET['multiplant']) && isset($_GET['url']))
     // it is true to say that there is a LOT of pinging involved but it IS important
     $query = sprintf('CREATE TABLE `%s` (`ip_and_port` TINYBLOB NOT NULL, `seed_or_peer` TINYINT NOT NULL, `timestamp` TIMESTAMP NOT NULL , UNIQUE (ip_and_port(6))) ', mysql_real_escape_string($info_hash));
     mysql_query($query);
-    $query = sprintf('INSERT INTO `multiseed` VALUES ( "%s", "%s", NOW())', mysql_real_escape_string($info_hash), quote_smart($url));
+    $query = sprintf('INSERT INTO `multiseed` VALUES ( %s , %s ,  NOW())', quote_smart(pack('H*', $info_hash)), quote_smart($url));
     mysql_query($query);
     if(mysql_errno() == 1146)
     {
         // create the table
-        mysql_query('CREATE TABLE `multiseed` (`info_hash` TEXT NOT NULL, `url` TEXT NOT NULL, `timestamp` TIMESTAMP NOT NULL , INDEX (`info_hash`) ) ');
+        // i've decided to have the info_hash in binary to save a bit of space
+        mysql_query('CREATE TABLE `multiseed` (`info_hash` TINYBLOB NOT NULL, `url` TEXT NOT NULL, `timestamp` TIMESTAMP NOT NULL , UNIQUE (info_hash(20)) ');
         mysql_query($query);
-        // presuming those queries work
        	die('7:SUCCESS');   
     }
     elseif(mysql_errno())
     {
-        er('There was a databse error: ' . mysql_error()); // I doubt a mysql error is any use to the user but anyway
-        mysql_close();
+	mysql_close();
+       er('There was a database error: ' . mysql_error()); // I doubt a mysql error is any use to the user but anyway
     }
     else
     {
+    	mysql_close();
   	die('7:SUCCESS');
     }
 }

@@ -117,7 +117,7 @@ while($row = mysql_fetch_row($result))
         if(mysql_date_parser($row[11]) <= (time() - 864000))
         {
             mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
-            $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', mysql_real_escape_string($row[0]));
+            $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', mysql_real_escape_string(pack('H*' , $row[0])));
             @mysql_query($query);
         }
         else
