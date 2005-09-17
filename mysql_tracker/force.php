@@ -97,7 +97,7 @@ if(isset($_GET['info_hash']))
     }
     elseif($fp == "ACCEPTED")
     {
-        $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' , mysql_real_escape_string($binfo_hash);
+        $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' , mysql_real_escape_string($binfo_hash));
         mysql_query($query);
     }
     mysql_close();

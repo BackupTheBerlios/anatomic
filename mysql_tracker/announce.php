@@ -222,7 +222,7 @@ if(is_array($row))
             }
             else
             {
-                $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' , mysql_real_escape_string($binfo_hash);
+                $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' , mysql_real_escape_string($binfo_hash));
                 mysql_query($query);
             }
         }

@@ -129,7 +129,7 @@ if(isset($_GET['multiplant']) && isset($_GET['url']))
     {
         // create the table
         // i've decided to have the info_hash in binary to save a bit of space
-        mysql_query('CREATE TABLE `multiseed` (`info_hash` TINYBLOB NOT NULL, `url` TEXT NOT NULL, `timestamp` TIMESTAMP NOT NULL , UNIQUE (info_hash(20)) ');
+        mysql_query('CREATE TABLE `multiseed` (`info_hash` TINYBLOB NOT NULL, `url` TEXT NOT NULL, `timestamp` TIMESTAMP NOT NULL , UNIQUE (info_hash(20))) ');
         mysql_query($query);
        	die('7:SUCCESS');   
     }
