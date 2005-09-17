@@ -130,6 +130,8 @@ if(isset($_GET['multiplant']) && isset($_GET['url']))
         // create the table
         mysql_query('CREATE TABLE `multiseed` (`info_hash` TEXT NOT NULL, `url` TEXT NOT NULL, `timestamp` TIMESTAMP NOT NULL , INDEX (`info_hash`) ) ');
         mysql_query($query);
+        // presuming those queries work
+       	die('7:SUCCESS');   
     }
     elseif(mysql_errno())
     {
