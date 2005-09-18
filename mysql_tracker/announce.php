@@ -215,7 +215,7 @@ if(is_array($row))
                 }
             }
             fclose($fp);
-            if($fp == "EXPIRED")
+            if($stream == "EXPIRED")
             { // keeps the single tracker torrent going
                 $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s', mysql_real_escape_string($binfo_hash));
                 mysql_query($query);
