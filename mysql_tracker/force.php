@@ -77,7 +77,7 @@ if(isset($_GET['info_hash']))
     }
     $peers .= 'e';
     $url = str_replace("/announce", "/multiseed", $url);
-    $url .= "?info_hash=" . urlencode(pack("H*", $info_hash)) . "&data=" . urlencode(gzcompress($peers));
+    $url .= "?info_hash=" . urlencode(pack("H*", $info_hash)) . "&data=" . urlencode($peers);
     echo "The data to be sent is: $url <br />";
     $fp = fopen($url, "rb");
     $stream = "";
@@ -90,7 +90,7 @@ if(isset($_GET['info_hash']))
     }
     fclose($fp);
     echo "The response from the other tracker was: $stream";
-    if($stream== "EXPIRED")
+    if($stream == "EXPIRED")
     { // keeps the single tracker torrent going
         $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s', mysql_real_escape_string($info_hash));
         mysql_query($query);

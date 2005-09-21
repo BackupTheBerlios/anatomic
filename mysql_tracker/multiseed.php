@@ -47,7 +47,7 @@ if(isset($_GET['info_hash']) && isset($_GET['data']))
       die('HASHFAIL'); // that's virtually impossible
     }
     $info_hash = bin2hex($info_hash);
-    $data = @gzuncompress($_GET['data']);
+    $data = $_GET['data'];
     if(substr($data, -1, 1) == "e" and substr($data, 0, 1) == "l")
     {
       /* this is done so that the bdecode library does not go insane and crash the server

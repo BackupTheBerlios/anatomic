@@ -92,7 +92,7 @@ if(isset($_GET['info_hash']))
         if($row[3] == "0") // for some reason it returns a string
         {
             // check date of table if no modifcations have been made for 86400 seconds (i.e one day)
-            if(mysql_date_parser($row[11]) <= (time() - 864000))
+            if(mysql_date_parser($row[11]) <= (time() - 86400))
             {
                 mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
                 $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', mysql_real_escape_string(pack('H*' , $row[0])));
@@ -129,10 +129,10 @@ if($wholescrape)
         // there should be no other reason to have a 40 byte table name
         if($row[3] == "0") // returns a string??
         {
-            if(mysql_date_parser($row[11]) <= (time() - 864000))
+            if(mysql_date_parser($row[11]) <= (time() - 86400))
             {
                 mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
-                $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', mysql_real_escape_string(pack('H*' , $row[0])));
+                $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s' ", mysql_real_escape_string(pack('H*' , $row[0])));
                 @mysql_query($query);
             }
             else
