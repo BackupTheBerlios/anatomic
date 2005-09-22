@@ -59,6 +59,7 @@ function getstat($info_hash)
     // It removes all peers that have not replied for over 40 minutes
     $query = sprintf('DELETE FROM `%s` WHERE UNIX_TIMESTAMP(timestamp) <= %s ', mysql_real_escape_string($info_hash), time() - 2400);
     $result = mysql_query($query);
+    // It counts the seeds and peers quickly
     $query = sprintf('SELECT SUM(`seed_or_peer`), COUNT(*) - SUM(`seed_or_peer`) FROM `%s`', mysql_real_escape_string($info_hash));
     $result = mysql_query($query);
     $row = mysql_fetch_row($result);

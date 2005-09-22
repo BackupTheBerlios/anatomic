@@ -75,13 +75,14 @@ if($_GET['compact'] != 1)
 {
     er('This tracker requires the new compact tracker protocol. Please check your client for updates.');
 }
+// It is rather suprising how many clients appear without a port
 if(!isset($_GET['port']))
 {
     er('Please include a port.');
 }
 $ip = $_SERVER["REMOTE_ADDR"];
-
-if (isset($_SERVER["HTTP_X_FORWARDED_FOR"]))
+// This is to get round my ISP really but it is applicable for other isps.
+if(isset($_SERVER["HTTP_X_FORWARDED_FOR"]))
 {
     foreach(explode(",",$_SERVER["HTTP_X_FORWARDED_FOR"]) as $address)
     {
@@ -117,6 +118,7 @@ if (isset($_SERVER["HTTP_X_FORWARDED_FOR"]))
         }
     }
 }
+// Not sure about this override???
 if (isset($_GET["ip"]))
 {
     // compact check: valid IP address:
@@ -126,6 +128,7 @@ if (isset($_GET["ip"]))
     }
     $ip = $_GET["ip"];
 }
+// This bit is from FBT2
 $info_hash = $_GET['info_hash'];
 if(strlen($info_hash) != 20)
 {
@@ -136,13 +139,16 @@ if(strlen($info_hash) != 20)
     er('Invalid info_hash');
 }
 $info_hash = bin2hex($info_hash);
+// This is to stop the pack function being used many times (acts as anti-spoof measure instead of using original data)
 $binfo_hash = pack('H*' , $info_hash);
 $peer_ip = explode('.', $ip);
 $peer_ip = pack("C*", $peer_ip[0], $peer_ip[1], $peer_ip[2], $peer_ip[3]);
 $peer_port = pack("n*", (int)$_GET['port']);
+// The peer_ip and peer_port is packed just like in the compact tracker spec
 $db = mysql_connect($dbhost, $dbuname, $dbpasswd);
 mysql_select_db($dbname,$db);
 // SHOW TABLE STATUS LIKE does not seem to work on some versions of MYSQL
+// This query loops through the tables to find the matching one and also purges it if necessary
 $query = sprintf('SHOW TABLE STATUS LIKE %s', quote_smart($info_hash . '%'));
 $result = mysql_query($query);
 while($row = mysql_fetch_row($result))
@@ -162,9 +168,9 @@ while($row = mysql_fetch_row($result))
        		{
        		     mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
       		     $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', mysql_real_escape_string($binfo_hash));
-        	    @mysql_query($query);
+        	  	    @mysql_query($query);
        		     mysql_close();
-         	     er('The torrent is dead. Nobody has accessed this torrent for two days or more.');
+         	 	     er('The torrent is dead. Nobody has accessed this torrent for two days or more.');
      		}
     	}
     }
@@ -212,7 +218,7 @@ if(is_array($row))
             }
             $peers .= 'e';
             $url = str_replace("/announce", "/multiseed", $row[0]);
-            $url .= "?info_hash=" . urlencode(pack("H*", $info_hash)) . "&data=" . urlencode(gzcompress($peers));
+            $url .= "?info_hash=" . urlencode(pack("H*", $info_hash)) . "&data=" . urlencode($peers);
             $fp = fopen($url, "rb");
             $stream = "";
             if ($fp)
