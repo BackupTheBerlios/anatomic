@@ -91,13 +91,14 @@ if(isset($_GET['info_hash']))
     fclose($fp);
     echo "The response from the other tracker was: $stream";
     if($stream == "EXPIRED")
-    { // keeps the single tracker torrent going
+    { 
+        // keeps the single tracker torrent going
         $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s'", mysql_real_escape_string($info_hash));
         mysql_query($query);
     }
     elseif($stream == "ACCEPTED")
     {
-        $query = sprintf("UPDATE `multiseed` WHERE info_hash = '%s' SET timestamp = NOW()" , mysql_real_escape_string($binfo_hash));
+        $query = sprintf("UPDATE `multiseed` SET timestamp = NOW() WHERE info_hash = '%s'" , mysql_real_escape_string($binfo_hash));
         mysql_query($query);
     }
     mysql_close();
