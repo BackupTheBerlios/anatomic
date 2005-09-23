@@ -1,6 +1,6 @@
 <?php
 /*
-    Anatomic P2P MySQL Tracker (multiseed.php)
+    Anatomic P2P MySQL Tracker 0.1 RC1 (multiseed.php)
     Copyright (C) 2005  kunkie
 
     This program is free software; you can redistribute it and/or modify

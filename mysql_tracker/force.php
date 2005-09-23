@@ -1,7 +1,7 @@
 <?php
 /*
-    Anatomic P2P MySQL Tracker (announce.php)
-    Copyright (C) 2005  kunkie
+    Anatomic P2P MySQL Tracker 0.1 RC1 (force.php)
+    Copyright (C) 2005 kunkie
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ if(isset($_GET['info_hash']))
     echo 'The info hash of the torrent is: ' . $info_hash . '<br />';
     $db = mysql_connect($dbhost, $dbuname, $dbpasswd);
     mysql_select_db($dbname,$db);
-    $query = sprintf('SELECT `url` FROM `multiseed` WHERE `info_hash` = \'%s\' ', mysql_real_escape_string($binfo_hash));
+    $query = sprintf("SELECT `url` FROM `multiseed` WHERE `info_hash` = '%s' ", mysql_real_escape_string($binfo_hash));
     $result = mysql_query($query);
     if(mysql_errno() == 1054)
     {
@@ -92,12 +92,12 @@ if(isset($_GET['info_hash']))
     echo "The response from the other tracker was: $stream";
     if($stream == "EXPIRED")
     { // keeps the single tracker torrent going
-        $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s', mysql_real_escape_string($info_hash));
+        $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s'", mysql_real_escape_string($info_hash));
         mysql_query($query);
     }
     elseif($stream == "ACCEPTED")
     {
-        $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' , mysql_real_escape_string($binfo_hash));
+        $query = sprintf("UPDATE `multiseed` WHERE info_hash = '%s' SET timestamp = NOW()" , mysql_real_escape_string($binfo_hash));
         mysql_query($query);
     }
     mysql_close();

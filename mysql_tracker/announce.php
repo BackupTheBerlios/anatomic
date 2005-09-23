@@ -1,6 +1,6 @@
 <?php
 /*
-    Anatomic P2P MySQL Tracker (announce.php)
+    Anatomic P2P MySQL Tracker 0.1 RC1 (announce.php)
     Copyright (C) 2005  kunkie
 
     This program is free software; you can redistribute it and/or modify
@@ -157,8 +157,8 @@ while($row = mysql_fetch_row($result))
     // checking if the table has no peers or seeds
     if($_GET['left'] == 0)
     {
-    // a seed keeps the torrent alive
-    // this is a really bad hack because the expression ($_GET['left'] != 0 ) fails
+       // a seed keeps the torrent alive
+       // this is a really bad hack because the expression ($_GET['left'] != 0 ) fails
     }
     else
     {
@@ -167,10 +167,10 @@ while($row = mysql_fetch_row($result))
         	if(mysql_date_parser($row[11]) <= (time() - 86400))
        		{
        		     mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
-      		     $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', mysql_real_escape_string($binfo_hash));
-        	  	    @mysql_query($query);
+      		     $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', quote_smart($binfo_hash));
+        	     @mysql_query($query);
        		     mysql_close();
-         	 	     er('The torrent is dead. Nobody has accessed this torrent for two days or more.');
+         	     er('The torrent is dead. Nobody has accessed this torrent for two days or more.');
      		}
     	}
     }
@@ -178,10 +178,10 @@ while($row = mysql_fetch_row($result))
 }
 if(!$found)
 {
-    er("Please plant the torrent file on the Network. The torrent may have expired.");
+    er('Please plant the torrent file on the network. The torrent may have expired.');
 }
-$query = sprintf('SELECT `url`, UNIX_TIMESTAMP(timestamp) FROM multiseed WHERE info_hash = %s', mysql_real_escape_string($binfo_hash));
-$result = @mysql_query($query);
+$query = sprintf('SELECT `url`, UNIX_TIMESTAMP(timestamp) FROM multiseed WHERE info_hash = %s ', quote_smart($binfo_hash));
+$result = mysql_query($query);
 // might not be multiseed at all so best keep it quiet with @
 $row = @mysql_fetch_row($result);
 if(is_array($row))
@@ -195,13 +195,17 @@ if(is_array($row))
         $query = sprintf('SELECT COUNT(*) FROM `%s`',  mysql_real_escape_string($info_hash));
         $result = mysql_query($query);
         $row2= mysql_fetch_row($result);
-        if((int)$row2[0] != 0)
+        if((int)$row2[0] == 0)
         {
+     	   // not sure why (int)$row2[0] != 0 does not work
+        }
+        else
+        {  
             if((int)$row2[0] > 500)
             {
                 // take a random slice instead
                 $rand = @mt_rand(0, (int)$row2[0]-20);
-                $query = sprintf('SELECT `ip_and_port`, UNIX_TIMESTAMP(timestamp), `seed_or_peer` FROM %s LIMIT %s,%s)', mysql_real_escape_string($info_hash), $rand, $rand + 20);
+                $query = sprintf('SELECT `ip_and_port`, UNIX_TIMESTAMP(timestamp), `seed_or_peer` FROM `%s` LIMIT %s,%s)', mysql_real_escape_string($info_hash), $rand, $rand + 20);
             }
             else
             {
@@ -220,7 +224,7 @@ if(is_array($row))
             $url = str_replace("/announce", "/multiseed", $row[0]);
             $url .= "?info_hash=" . urlencode(pack("H*", $info_hash)) . "&data=" . urlencode($peers);
             $fp = fopen($url, "rb");
-            $stream = "";
+            $stream = '';
             if ($fp)
             {
                 while( !feof( $fp ) )
@@ -229,14 +233,14 @@ if(is_array($row))
                 }
             }
             fclose($fp);
-            if($stream == "EXPIRED")
+            if($stream == 'EXPIRED')
             { // keeps the single tracker torrent going
-                $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s', mysql_real_escape_string($binfo_hash));
+                $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s', quote_smart($binfo_hash));
                 mysql_query($query);
             }
-            else
+            elseif($stream == 'ACCEPTED')
             {
-                $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' , mysql_real_escape_string($binfo_hash));
+                $query = sprintf('UPDATE `multiseed` WHERE info_hash = %s SET timestamp = NOW()' , quote_smart($binfo_hash));
                 mysql_query($query);
             }
         }
@@ -271,7 +275,7 @@ if($_GET['event'] == 'stopped' || $_GET['numwant'] === 0)
 }
 // counting rows is really quick
 // code snippets from PHPBTTRACKER
-$query = sprintf('SELECT COUNT(*) FROM %s ', mysql_real_escape_string($info_hash));
+$query = sprintf('SELECT COUNT(*) FROM `%s` ', mysql_real_escape_string($info_hash));
 $result = mysql_query($query);
 $peercount = mysql_result($result, 0,0);
 // ORDER BY RAND() is a computationally expensive function

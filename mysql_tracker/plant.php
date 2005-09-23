@@ -1,7 +1,7 @@
 <?php
 //error_reporting(1);
 /*
-    Anatomic P2P MySQL tracker 0.1 Beta (based on FBT2)
+    Anatomic P2P MySQL Tracker 0.1 RC1 (plant.php)
     Copyright (C) 2005  kunkie
 
     This program is free software; you can redistribute it and/or modify

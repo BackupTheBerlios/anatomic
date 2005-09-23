@@ -1,6 +1,6 @@
 <?php
 /*
-    Anatomic P2P MySQL Tracker 0.1 Beta (scrape.php)
+    Anatomic P2P MySQL Tracker 0.1 RC1 (scrape.php)
     Copyright (C) 2005  kunkie
 
     This program is free software; you can redistribute it and/or modify
@@ -96,7 +96,7 @@ if(isset($_GET['info_hash']))
             if(mysql_date_parser($row[11]) <= (time() - 86400))
             {
                 mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
-                $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', mysql_real_escape_string(pack('H*' , $row[0])));
+                $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s' ", mysql_real_escape_string(pack('H*' , $row[0])));
                 @mysql_query($query);
             }
             else
@@ -134,7 +134,7 @@ if($wholescrape)
             {
                 mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
                 $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s' ", mysql_real_escape_string(pack('H*' , $row[0])));
-                @mysql_query($query);
+                @mysql_query($query); // it might not be a multiseed torrent
             }
             else
             {
