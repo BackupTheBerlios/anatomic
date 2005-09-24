@@ -106,5 +106,5 @@ if(isset($_GET['info_hash']))
 }
 else
 {
-die('Please include an info hash');
+die('Please include a hex info hash');
 }

@@ -83,11 +83,4 @@ if(isset($_GET['info_hash']) && isset($_GET['data']))
       die('ACCEPTED');
     }
     // Errors are pretty unlikely apart from expired
-
-
-
-
-
-
-
 }

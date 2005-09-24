@@ -162,10 +162,13 @@ while($row = mysql_fetch_row($result))
     }
     else
     {
+        // the following if statement makes sure that the table has no rows (i.e. no peers)
+        // for some reason it returns zero encoded as a string
     	if($row[3] == "0" ) 
     	{
         	if(mysql_date_parser($row[11]) <= (time() - 86400))
        		{
+       		     // 86400 seconds in a day so therefore if the torrent has had no requests for a day it expires
        		     mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
       		     $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', quote_smart($binfo_hash));
         	     mysql_query($query);
@@ -180,9 +183,11 @@ if(!$found)
 {
     er('Please plant the torrent file on the network. The torrent may have expired.');
 }
+// This bit is for multiseeding (peer sharing)
 $query = sprintf('SELECT `url`, UNIX_TIMESTAMP(timestamp) FROM multiseed WHERE info_hash = %s ', quote_smart($binfo_hash));
 $result = mysql_query($query);
 $row = mysql_fetch_row($result);
+// If an array is not returned then the data is useless
 if(is_array($row))
 {
     if(time() - (int)$row[1] >= 900) // 15 minutes old
@@ -269,8 +274,9 @@ if(mysql_errno() == 1062)
 }
 if($_GET['event'] == 'stopped' || $_GET['numwant'] === 0)
 {
+    // officially the client still returns peers when event is stopped but what's the point
     mysql_close();
-    die('d8:intervali900e5:peers' . strlen('') . ':' . '' . 'e');
+    die('d8:intervali1800e5:peers' . strlen('') . ':' . '' . 'e');
 }
 // counting rows is really quick
 // code snippets from PHPBTTRACKER
