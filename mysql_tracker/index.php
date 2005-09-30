@@ -136,6 +136,6 @@ mysql_close();
 <?
 }
 ?>
-<TABLE ALIGN="CENTER" CELLSPACING="10" CELLPADDING="0" BORDER="0"><TR><TD ALIGN="CENTER">Anatomic P2P Tracker 0.1 Beta based on FBT2 - Flippy's BitTorrent Tracker v2 (GPL)<BR>http://www.torrentz.com/fbt.html</TD></TR></TABLE>
+<TABLE ALIGN="CENTER" CELLSPACING="10" CELLPADDING="0" BORDER="0"><TR><TD ALIGN="CENTER">Anatomic P2P Tracker 0.1 RC1 based on FBT2 - Flippy's BitTorrent Tracker v2 (GPL)<BR>http://www.torrentz.com/fbt.html</TD></TR></TABLE>
 </BODY>
 </HTML>

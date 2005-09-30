@@ -186,7 +186,8 @@ if(!$found)
 // This bit is for multiseeding (peer sharing)
 $query = sprintf('SELECT `url`, UNIX_TIMESTAMP(timestamp) FROM multiseed WHERE info_hash = %s ', quote_smart($binfo_hash));
 $result = mysql_query($query);
-$row = mysql_fetch_row($result);
+// the @ is to shut it up just in case table multiseed does not exist
+$row = @mysql_fetch_row($result);
 // If an array is not returned then the data is useless
 if(is_array($row))
 {
