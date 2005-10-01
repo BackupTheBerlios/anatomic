@@ -125,7 +125,7 @@ if($wholescrape)
     $db = mysql_connect($dbhost, $dbuname, $dbpasswd);
     mysql_select_db($dbname,$db);
     $result = mysql_query("SHOW TABLE STATUS LIKE '________________________________________'");
-    while($row = mysql_fetch_row($result))
+    while($row = mysql_fetch_array($result))
     {
         // there should be no other reason to have a 40 byte table name
         if($row["Rows"] == "0") // returns a string??
