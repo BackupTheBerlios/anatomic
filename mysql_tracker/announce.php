@@ -151,7 +151,7 @@ mysql_select_db($dbname,$db);
 // This query loops through the tables to find the matching one and also purges it if necessary
 $query = sprintf('SHOW TABLE STATUS LIKE %s', quote_smart($info_hash . '%'));
 $result = mysql_query($query);
-while($row = mysql_fetch_row($result))
+while($row = mysql_fetch_array($result))
 {
     // there should be no other reason to have a 40 byte table name
     // checking if the table has no peers or seeds
@@ -164,12 +164,12 @@ while($row = mysql_fetch_row($result))
     {
         // the following if statement makes sure that the table has no rows (i.e. no peers)
         // for some reason it returns zero encoded as a string
-    	if($row[3] == "0" ) 
+    	if($row["Rows"] == "0" ) 
     	{
-        	if(mysql_date_parser($row[11]) <= (time() - 86400))
+        	if(mysql_date_parser($row["Update_time"]) <= (time() - 86400))
        		{
        		     // 86400 seconds in a day so therefore if the torrent has had no requests for a day it expires
-       		     mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
+       		     mysql_query('DROP TABLE IF EXISTS ' . $row["Name"]);
       		     $query = sprintf('DELETE FROM `multiseed` WHERE info_hash = %s ', quote_smart($binfo_hash));
         	     mysql_query($query);
        		     mysql_close();

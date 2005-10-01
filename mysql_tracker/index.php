@@ -109,25 +109,25 @@ else
 </TR>
 <?
 $result = mysql_query("SHOW TABLE STATUS LIKE '________________________________________'");
-while($row = mysql_fetch_row($result))
+while($row = mysql_fetch_array($result))
 {
     // there should be no other reason to have a 40 byte table name
-    if($row[3] == "0") // returns a string??
+    if($row["Rows"] == "0") // returns a string??
     {
-        if(mysql_date_parser($row[11]) <= (time() - 86400))
+        if(mysql_date_parser($row["Update_time"]) <= (time() - 86400))
         {
-            mysql_query('DROP TABLE ' . $row[0] );
-            $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s' ", mysql_real_escape_string(pack('H*' , $row[0])));
+            mysql_query('DROP TABLE ' . $row["Name"]);
+            $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s' ", mysql_real_escape_string(pack('H*' ,$row["Name"])));
             @mysql_query($query);
         }
         else
         {
-            echo getstat($row[0]);
+            echo getstat($row["Name"]);
         }
     }
     else
     {
-        echo getstat($row[0]);
+        echo getstat($row["Name"]);
     }
 }
 mysql_close();

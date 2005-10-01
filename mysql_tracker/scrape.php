@@ -88,15 +88,15 @@ if(isset($_GET['info_hash']))
     $query = sprintf('SHOW TABLE STATUS LIKE %s', quote_smart($info_hash . '%'));
     $result = mysql_query($query);
     $ok = False;
-    while($row = mysql_fetch_row($result))
+    while($row = mysql_fetch_array($result))
     {
-        if($row[3] == "0") // for some reason it returns a string
+        if($row["Rows"] == "0") // for some reason it returns a string
         {
             // check date of table if no modifcations have been made for 86400 seconds (i.e one day)
-            if(mysql_date_parser($row[11]) <= (time() - 86400))
+            if(mysql_date_parser($row["Update_time"]) <= (time() - 86400))
             {
-                mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
-                $query = sprintf("DELETE FROM `multiseed` WHERE `info_hash` = '%s' ", mysql_real_escape_string(pack('H*' , $row[0])));
+                mysql_query('DROP TABLE IF EXISTS ' . $row["Name"]);
+                $query = sprintf("DELETE FROM `multiseed` WHERE `info_hash` = '%s' ", mysql_real_escape_string(pack('H*' , $row["Name"])));
                 mysql_query($query);
             }
             else
@@ -128,22 +128,22 @@ if($wholescrape)
     while($row = mysql_fetch_row($result))
     {
         // there should be no other reason to have a 40 byte table name
-        if($row[3] == "0") // returns a string??
+        if($row["Rows"] == "0") // returns a string??
         {
-            if(mysql_date_parser($row[11]) <= (time() - 86400))
+            if(mysql_date_parser($row["Update_time"]) <= (time() - 86400))
             {
-                mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
-                $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s' ", mysql_real_escape_string(pack('H*' , $row[0])));
+                mysql_query('DROP TABLE IF EXISTS ' .  $row["Name"]);
+                $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s' ", mysql_real_escape_string(pack('H*' ,  $row["Name"])));
                 @mysql_query($query); // it might not be a multiseed torrent
             }
             else
             {
-                $o .= getstat($row[0]);
+                $o .= getstat($row["Name"]);
             }
         }
         else
         {
-            $o .= getstat($row[0]);
+            $o .= getstat($row["Name"]);
         }
     }
     mysql_close();

@@ -100,7 +100,7 @@ if(isset($_GET['multiplant']) && isset($_GET['url']))
     // set up the database
     $db = mysql_connect($dbhost, $dbuname, $dbpasswd);
     mysql_select_db($dbname,$db);
-    $query = sprintf('SHOW TABLE STATUS LIKE %s', quote_smart($info_hash . '%'));
+    $query = sprintf('SHOW TABLES LIKE %s', quote_smart($info_hash . '%'));
     $result = @mysql_query($query);
     $row = @mysql_fetch_row($result);
     if(is_array($row))
@@ -131,7 +131,7 @@ if(isset($_GET['multiplant']) && isset($_GET['url']))
         // i've decided to have the info_hash in binary to save a bit of space
         mysql_query('CREATE TABLE `multiseed` (`info_hash` TINYBLOB NOT NULL, `url` TEXT NOT NULL, `timestamp` TIMESTAMP NOT NULL , UNIQUE (info_hash(20))) ');
         mysql_query($query);
-       die('7:SUCCESS');   
+        die('7:SUCCESS');   
     }
     elseif(mysql_errno())
     {

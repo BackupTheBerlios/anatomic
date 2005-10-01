@@ -41,24 +41,26 @@ mysql_select_db($dbname,$db);
 $result = mysql_query("SHOW TABLE STATUS LIKE '________________________________________'");
 // start the list
 $list = "l";
-while($row = mysql_fetch_row($result))
+/* If a different version (to mine) of MySQL is used the results can be different for SHOW TABLE STATUS
+    So, mysql_fetch_array() is used */
+while($row = mysql_fetch_array($result))
 {
-    if($row[3] == "0") // returns a string??
+    if($row["Rows"] == "0") // returns a string??
     {
-        if(mysql_date_parser($row[11]) <= (time() - 86400))
+        if(mysql_date_parser($row["Update_time"]) <= (time() - 86400))
         {
-            mysql_query('DROP TABLE IF EXISTS ' . $row[0]);
-            $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s' ", mysql_real_escape_string(pack('H*' , $row[0])));
+            mysql_query('DROP TABLE IF EXISTS ' . $row["Name"]);
+            $query = sprintf("DELETE FROM `multiseed` WHERE info_hash = '%s' ", mysql_real_escape_string(pack('H*' , $row["Name"])));
             @mysql_query($query);
         }
         else
         {
-            $list .= '40' . ':' . $row[0];
+            $list .= '40' . ':' . $row["Name"];
         }
     }
     else
     {
-        $list .= '40' . ':' . $row[0];
+        $list .= '40' . ':' . $row["Name"];
     }
 }
 $list .= "e";
