@@ -409,7 +409,7 @@ class Planterwizard:
 		self.forwardid = self.forward.connect("clicked", self.check)
 	def check(self, widget, data=None): # this makes sure the data is a torrent
 		filename = self.choosebutton.get_filename()
-		if type(filename) = type("filename") and filename.endswith("torrent"):
+		if type(filename) == type("filename") and filename.endswith("torrent"):
 			self.filename = filename
 			self.change(self.forward)
 		else:
