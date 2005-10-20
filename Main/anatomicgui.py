@@ -179,7 +179,6 @@ class HeadlessDisplayer:
       			do_gui_operation(self.tab.get_widget("label107").set_label, self.shareRating)
 			if self.status is not None:
 				do_gui_operation(self.tab.get_widget("label108").set_label, self.status)
-			# THERE ARE X DOWNLOADS TAKING PLACE
 			dpflag.set()
 	except:
 		pass 
@@ -223,6 +222,7 @@ def run(tab=None, tab_label = None, app=None, config=None, configdir=None):
                     upnp_type = 0
                     continue
                 print "error: Couldn't listen - " + str(e)
+		do_gui_operation(app.stop, tab)
                 h.failed()
                 return
 
@@ -272,7 +272,7 @@ def run(tab=None, tab_label = None, app=None, config=None, configdir=None):
     if not h.done:
         h.failed()
 
-# this is the main interfacial (it's a word...) object
+# this is the main interfacial (it's a word ;-]) object
 class Client:
 	def __init__(self):
 		# pick up the parameters straightaway
@@ -349,19 +349,27 @@ class Client:
 		# ---------------------------------------							
 		# defining buttons and connecting them
 		self.button1 = self.wTree.get_widget("button1")
+		self.button1.connect("enter", self.statushandler, "Open a torrent file for download (Ctrl-O).")
+		self.button1.connect("leave", self.statushandler, "")	
+		self.button1.connect("clicked", self.fileselector)	
 		# button 2 is not important at this stage
 		self.button3 = self.wTree.get_widget("button3")
+		self.button3.set_sensitive(False) # wait for a download
 		self.button4 = self.wTree.get_widget("button4")
-		self.button5 = self.wTree.get_widget("button5")
-		self.button6 = self.wTree.get_widget("button6")
-		self.button7 = self.wTree.get_widget("button7")
-		self.button1.connect("clicked", self.fileselector)
-		self.button3.set_sensitive(False)
 		self.button4.set_sensitive(False)
-		# leave for the time being like this
+		self.button5 = self.wTree.get_widget("button5")
 		self.button5.connect("clicked", self.settings)
+		self.button5.connect("enter", self.statushandler, "Change this program's settings (Ctrl-S).")
+		self.button5.connect("leave", self.statushandler, "")	
+		self.button6 = self.wTree.get_widget("button6")
+		self.button6.connect("enter", self.statushandler, "About this program (Ctrl-A).")
+		self.button6.connect("leave", self.statushandler, "")	
 		self.button6.connect("clicked", self.about)
+		self.button7 = self.wTree.get_widget("button7")
+		self.button7.connect("enter", self.statushandler, "Quit this program and stop all transfers (Ctrl-Q).")
+		self.button7.connect("leave", self.statushandler, "")	
 		self.button7.connect("clicked", self.destroy)
+		# leave for the time being like this
 		# end of buttons at the top of the client (tab independent)
 		self.tabs = self.wTree.get_widget("notebook3") # pretty important
 		self.tabs.connect("switch-page", self.tabchanged)
@@ -379,10 +387,9 @@ class Client:
 		self.wTree.get_widget("spinbutton13").connect("value-changed", self.move)
 		self.wTree.get_widget("spinbutton14").connect("value-changed", self.move)
 		# apparently it IS possible to have an empty notebook (but it will look stupid)
-		time = ctime()
 		self.statusbar = self.wTree.get_widget("statusbar1")
 		self.context_id = self.statusbar.get_context_id("A message saying the program has loaded")
-		self.message_id = self.statusbar.push(self.context_id, "Program Started:  "+time)
+		self.message_id = self.statusbar.push(self.context_id, "Welcome to Anatomic P2P")
 		self.deftab = None
 		self.torrents = [] # this list will contain the torrents [[ tab , download object], [etc]]
 		self.pausebutton = 0 # zero is status button shows pause (i.e. active) and status 1 is status button shows resume (i.e. paused)
@@ -398,14 +405,20 @@ class Client:
 				# the user treats the app like btdownloadheadless.py (hopefully)
 				# this should work when the user associates this program with torrents
 				self.startthreads()
+	def statushandler(self, widget=None, data=None):
+			# this function handles status bar onmouseover on buttons (they call it 'enter' in GTK) 
+			self.context_id = self.statusbar.get_context_id("Onmouseover sort of messages.")
+			self.message_id = self.statusbar.push(self.context_id, data)		
 	def errors(self, widget=None, data=None):
-		errorlog = widget.get_widget("textview2").get_buffer()
-		errorlog.delete(errorlog.get_start_iter(), errorlog.get_end_iter())
-		insertmark = errorlog.get_insert()
-		for err in data:
-				iter = errorlog.get_iter_at_mark(insertmark)
-				errorlog.insert_with_tags_by_name(iter, 'ERROR:\r' + err + '\r', "error")
+			# this function is called by the stats object to deal with errors	
+			errorlog = widget.get_widget("textview2").get_buffer()
+			errorlog.delete(errorlog.get_start_iter(), errorlog.get_end_iter())
+			insertmark = errorlog.get_insert()
+			for err in data:
+					iter = errorlog.get_iter_at_mark(insertmark)
+					errorlog.insert_with_tags_by_name(iter, 'ERROR:\r' + err + '\r', "error")
 	def newtab(self, widget=None, data=None):
+			# This function creates a new tab and the tab_label thing
 			# before this is called if a single tab exists should be checked
 			gladefile = "anatomic.glade"
 			windowname = "vbox17"
@@ -419,6 +432,7 @@ class Client:
 			self.tabs.set_current_page(-1)
 			return (tab, tab_label)
 	def tabchanged(self, widget=None, data=None, data2=None):
+			# this program changes the pause/resume button when the tab changes
 			# unpauseflag basically means it is not paused
 			if len(self.torrents) == 0:
 				pass # something odd happened
@@ -440,6 +454,7 @@ class Client:
 						self.wTree.get_widget("image6").set_from_stock(gtk.STOCK_MEDIA_PLAY, 3)	
 						self.pausebutton == 1	
 	def saveconfig(self, widget=None, data=None):
+			# this functions saves the configuration permanently
 			if self.configdir.saveConfig(self.config):
 				self.context_id = self.statusbar.get_context_id("Tells the user about the save")
 				self.message_id = self.statusbar.push(self.context_id, "The settings were saved.")
@@ -456,6 +471,7 @@ class Client:
 			else: # 115
 				self.apply(self.settingstree.get_widget("button10"))
 	def settings(self, widget=None, data=None, data2=None, data3=None):
+			# this function loads the settings dialog
 			gladefile = "anatomic.glade"
 			windowname = "dialog1"
 			self.settingstree = gtk.glade.XML(gladefile, windowname)
@@ -472,12 +488,20 @@ class Client:
 			accel_group3.connect_group(115, gtk.gdk.CONTROL_MASK, gtk.ACCEL_LOCKED, self.wrap)
 			self.dialog1.add_accel_group(accel_group3)
 			# end of accelerators
+			# button stuff
+			self.settingstree.get_widget("button12").connect_object("clicked", self.dialogdestroy, self.dialog1)
+			self.settingstree.get_widget("button12").connect("enter", self.statushandler, "Cancel the changes (Ctrl-C)")
+			self.settingstree.get_widget("button12").connect("leave", self.statushandler, "")
+			self.settingstree.get_widget("button9").connect("clicked", self.apply)
+			self.settingstree.get_widget("button9").connect("enter", self.statushandler, "Save the settings for this current session. (Ctrl-A)")
+			self.settingstree.get_widget("button9").connect("leave", self.statushandler, "")
+			self.settingstree.get_widget("button10").connect("clicked", self.apply)
+			self.settingstree.get_widget("button10").connect("enter", self.statushandler, "Save the settings permanently. (Ctrl-S)")
+			self.settingstree.get_widget("button10").connect("leave", self.statushandler, "")			
+			# end of button stuff
 			self.label120 = self.settingstree.get_widget("label120")
 			self.spinbutton3 = self.settingstree.get_widget("spinbutton3")
 			self.spinbutton3.set_sensitive(False)
-			self.settingstree.get_widget("button12").connect_object("clicked", self.dialogdestroy, self.dialog1)
-			self.settingstree.get_widget("button9").connect("clicked", self.apply)
-			self.settingstree.get_widget("button10").connect("clicked", self.apply)
 			self.checkbutton1 = self.settingstree.get_widget("checkbutton1")
 			self.spinbutton4 = self.settingstree.get_widget("spinbutton4")
 			self.spinbutton5 = self.settingstree.get_widget("spinbutton5")
@@ -627,8 +651,15 @@ class Client:
 				tab[0].get_widget("spinbutton14").connect("value-changed", self.move)
 			self.button3.set_sensitive(True)
 			self.button3.connect("clicked", self.repause)
+			self.button3.connect("enter", self.statushandler, "Pause/Resume the selected transfer. (Ctrl-R) or (Ctrl-P)")
+			self.button3.connect("leave", self.statushandler, "")	
 			self.button4.set_sensitive(True)
+			self.button4.connect("enter", self.statushandler, "Cancel the selected transfer. (Ctrl-C)")
+			self.button4.connect("leave", self.statushandler, "")	
 			self.button4.connect("clicked", self.prompt)
+			self.wTree.get_widget("label90").set_label("_Pause\rTransfer")
+			self.wTree.get_widget("image6").set_from_stock(gtk.STOCK_MEDIA_PAUSE, 3)
+			self.pausebutton = 0
 			self.thread = Thread(target = run, args = [tab[0], tab[1], self, self.config, self.configdir])
 			self.thread.setDaemon(False)
 			self.thread.start()
@@ -742,7 +773,7 @@ class Client:
 		self.about.connect_object("delete_event", self.dialogdestroy, self.about)
 		self.about.set_name("Anatomic P2P (Main)")
 		self.about.set_version("Version 0.1 RC1") # Some peole have beta Release Candidate's - how does that work?
-		self.about.set_license("Licenced under the GNU General Public License that supercedes the MIT/X Consortium License. See License.txt for more information.")
+		self.about.set_license("Licenced under the GNU General Public License that \rsupercedes the MIT/X Consortium License.\rSee LICENSE.txt for more information.")
 		self.about.set_comments("A GUI BitTorrent Client with Anatomic P2P Extensions. \rThanks to the 'Ministry of Boredom' and the 'Boredom Squad' (see source code) for making me so bored that I dreamed up this idea ;)")
 		self.about.set_copyright("Copyleft Kunkie 2005. Some Rights Reserved.")
 		self.about.set_authors(["Main Author - Kunkie - kunky@mail.berlios.de\r","Thanks also to:\rFilesoup - http://www.filesoup.co.uk/forum/","PyGTK FAQ - http://www.async.com.br/faq/pygtk/","lefrog","Rhynome","'Pythonman'","BerliOS Developer - http://developer.berlios.de/","Idobi Radio - http://www.idobi.com " , "...and finally the whole of the 'Boredom Squad'\rand especially the commander-in-chief. ;-)"])
@@ -814,12 +845,15 @@ class Client:
 		if widget is not None:
 			child = widget.get_widget("vbox17")
 			pagenum = self.tabs.page_num(child)
-			self.torrents.remove(self.torrents[pagenum])
+			try:
+				self.torrents.remove(self.torrents[pagenum])
+			except:
+				pass
 			self.check(pagenum)	
 		elif data:
 				for torrent in self.torrents:
 					torrent[1].doneflag.set()
-				# that should stop the torrent
+				# that should stop the torrent(s)
 				gtk.main_quit()
 		else:
 				pagenum = self.tabs.get_current_page()	
@@ -828,7 +862,7 @@ class Client:
 				self.check(pagenum)
 				# the above code sets the client as if it was starting again
 
-# where would I be without this function (pygtk FAQ)
+# where would I be without this function (pygtk FAQ)?
 def do_gui_operation(function, *args, **kw):
     def idle_func():
         gtk.threads_enter()
