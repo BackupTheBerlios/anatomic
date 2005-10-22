@@ -67,9 +67,9 @@ class HeadlessDisplayer:
         self.last_update_time = -1
         self.fractionDone = ''
         self.status = None
-	self.tab = None
-	self.tab_label = None
-	self.labeldone = None
+        self.tab = None
+        self.tab_label = None
+        self.labeldone = None
 
     def finished(self):
         self.done = True
@@ -88,14 +88,14 @@ class HeadlessDisplayer:
 
     def error(self, errormsg):
         self.errors.append(errormsg)
-       	do_gui_operation(app.errors, self.tab, self.errors)
+        do_gui_operation(app.errors, self.tab, self.errors)
 
     def setdatalength(self, datalength = None):
-    	self.datalength = datalength	
+        self.datalength = datalength	
   
     def settabs(self, tab = None, tab_label = None):
-  	self.tab = tab
-	self.tab_label = tab_label     
+        self.tab = tab
+        self.tab_label = tab_label     
 
     def display(self, dpflag = Event(), fractionDone = None, timeEst = None,
             downRate = None, upRate = None, activity = None,
@@ -120,7 +120,7 @@ class HeadlessDisplayer:
             self.upRate = '0.0 kB/s'
         if statistics is not None:
            if (statistics.shareRating < 0) or (statistics.shareRating > 100):
-	       # utf-8 infinity is a bit small but better than oo (two 'o's)
+               # utf-8 infinity is a bit small but better than oo (two 'o's)
                self.shareRating = u'\u221E' + ' infinite (%.1f MB up / %.1f MB down)' % (float(statistics.upTotal) / (1<<20), float(statistics.downTotal) / (1<<20))
            else:
                self.shareRating = '%.3f  (%.1f MB up / %.1f MB down)' % (statistics.shareRating, float(statistics.upTotal) / (1<<20), float(statistics.downTotal) / (1<<20))
@@ -148,43 +148,43 @@ class HeadlessDisplayer:
         # this is a mess but it is needed to achieve cross-compatibility with win32 and X11
         # credits go to the pygtk faq
         # stupid M$
-	try:
-	        if app and self.tab is not None:
-			# not really worth updating the label with the same data again and again
-			if self.labeldone is None:
-				do_gui_operation(self.tab_label.get_widget("label144").set_label, self.file)
-	       			do_gui_operation(self.tab.get_widget("label100").set_label,'<span weight="bold" size="larger">Torrent Statistics - ' + self.file + '</span>')
-				self.labeldone = 1
-			if self.done:
-      		       		  if statistics is not None and float(statistics.downTotal) <  float(statistics.upTotal) :
-				  	   # the user has downloaded more than uploaded
-       		          		   do_gui_operation(self.tab.get_widget("progressbar1").set_fraction, 1.0)
-              	   			   do_gui_operation(self.tab.get_widget("progressbar1").set_text, "100 percent completed. You are a POWER SEEDER.")
-             			  elif statistics is not None and float(statistics.downTotal) >=  float(statistics.upTotal):
-                    			  if float(statistics.downTotal) == 0.0: # upload:download ratio is infinite - will cause divide by zero exception
-                      				    do_gui_operation(self.tab.get_widget("progressbar1").set_fraction, 1.0)
-                   			  else:
-                     				    do_gui_operation(self.tab.get_widget("progressbar1").set_fraction, float(statistics.upTotal)  /  float(statistics.downTotal))
-                     			  do_gui_operation(self.tab.get_widget("progressbar1").set_text, '100 percent completed. Please continue seeding.')
-                	elif fractionDone is not None: # probably should be 'else'
-            			 if statistics is not None:
-              				 do_gui_operation(self.tab.get_widget("progressbar1").set_fraction, self.progress)
-              			 	 do_gui_operation(self.tab.get_widget("progressbar1").set_text, 'Downloading - '+ str(round(float(self.progress * self.datalength) / (1 << 20),2)) + ' of ' + str(round(float(self.datalength) / (1 << 20), 2)) + ' MB downloaded'   )
-			do_gui_operation(self.tab.get_widget("label101").set_label, self.timeEst)
-      			do_gui_operation(self.tab.get_widget("label102").set_label, self.downloadTo)
-      			do_gui_operation(self.tab.get_widget("label103").set_label, self.downRate)
-     			do_gui_operation(self.tab.get_widget("label104").set_label, self.upRate)
-       			do_gui_operation(self.tab.get_widget("label105").set_label, self.seedStatus)
-       			do_gui_operation(self.tab.get_widget("label106").set_label, self.peerStatus)
-      			do_gui_operation(self.tab.get_widget("label107").set_label, self.shareRating)
-			if self.status is not None:
-				do_gui_operation(self.tab.get_widget("label108").set_label, self.status)
-			dpflag.set()
-	except:
-		pass 
-	# really stupid...
-	# sometimes the user commands can take place while the stats are going
-	# this stops errors
+        try:
+                if app and self.tab is not None:
+                        # not really worth updating the label with the same data again and again
+                        if self.labeldone is None:
+                                do_gui_operation(self.tab_label.get_widget("label144").set_label, self.file)
+                                do_gui_operation(self.tab.get_widget("label100").set_label,'<span weight="bold" size="larger">Torrent Statistics - ' + self.file + '</span>')
+                                self.labeldone = 1
+                        if self.done:
+                                if statistics is not None and float(statistics.downTotal) <  float(statistics.upTotal) :
+                                           # the user has downloaded more than uploaded
+                                           do_gui_operation(self.tab.get_widget("progressbar1").set_fraction, 1.0)
+                                           do_gui_operation(self.tab.get_widget("progressbar1").set_text, "100 percent completed. You are a POWER SEEDER.")
+                                elif statistics is not None and float(statistics.downTotal) >=  float(statistics.upTotal):
+                                          if float(statistics.downTotal) == 0.0: # upload:download ratio is infinite - will cause divide by zero exception
+                                                    do_gui_operation(self.tab.get_widget("progressbar1").set_fraction, 1.0)
+                                          else:
+                                                    do_gui_operation(self.tab.get_widget("progressbar1").set_fraction, float(statistics.upTotal)  /  float(statistics.downTotal))
+                                          do_gui_operation(self.tab.get_widget("progressbar1").set_text, '100 percent completed. Please continue seeding.')
+                        elif fractionDone is not None: # probably should be 'else'
+                                 if statistics is not None:
+                                         do_gui_operation(self.tab.get_widget("progressbar1").set_fraction, self.progress)
+                                         do_gui_operation(self.tab.get_widget("progressbar1").set_text, 'Downloading - '+ str(round(float(self.progress * self.datalength) / (1 << 20),2)) + ' of ' + str(round(float(self.datalength) / (1 << 20), 2)) + ' MB downloaded'   )
+                        do_gui_operation(self.tab.get_widget("label101").set_label, self.timeEst)
+                        do_gui_operation(self.tab.get_widget("label102").set_label, self.downloadTo)
+                        do_gui_operation(self.tab.get_widget("label103").set_label, self.downRate)
+                        do_gui_operation(self.tab.get_widget("label104").set_label, self.upRate)
+                        do_gui_operation(self.tab.get_widget("label105").set_label, self.seedStatus)
+                        do_gui_operation(self.tab.get_widget("label106").set_label, self.peerStatus)
+                        do_gui_operation(self.tab.get_widget("label107").set_label, self.shareRating)
+                        if self.status is not None:
+                                do_gui_operation(self.tab.get_widget("label108").set_label, self.status)
+                        dpflag.set()
+        except:
+                pass 
+        # really stupid...
+        # sometimes the user commands can take place while the stats are going
+        # this stops errors
 
     def chooseFile(self, default, size, saveas, dir):
         self.file = '%s (%.1f MB)' % (default, float(size) / (1 << 20))
@@ -222,7 +222,7 @@ def run(tab=None, tab_label = None, app=None, config=None, configdir=None):
                     upnp_type = 0
                     continue
                 print "error: Couldn't listen - " + str(e)
-		do_gui_operation(app.stop, tab)
+                do_gui_operation(app.stop, tab)
                 h.failed()
                 return
 
@@ -231,27 +231,27 @@ def run(tab=None, tab_label = None, app=None, config=None, configdir=None):
             break
 
         infohash = sha(bencode(response['info'])).digest()
-	# the infohash is presumed to be unique (ignoring sha1 clashes, which do exist)
-	# below is a REALLY bad hack
-	dupe = 0
-	for torrents in app.torrents:
-		if torrents[1].infohash == infohash:
-			dupe = 1
-			break	
-	if dupe == 1:
-		do_gui_operation(app.dupe)
-		break
+        # the infohash is presumed to be unique (ignoring sha1 clashes, which do exist)
+        # below is a REALLY bad hack
+        dupe = 0
+        for torrents in app.torrents:
+                if torrents[1].infohash == infohash:
+                        dupe = 1
+                        break      
+        if dupe == 1:
+                do_gui_operation(app.dupe)
+                break
         dow = BT1Download(h.display, h.finished, h.error, disp_exception, doneflag,
                         config, response, infohash, myid, rawserver, listen_port,
                         configdir)
-	h.settabs(tab = tab, tab_label = tab_label)
-	app.torrents.append([tab, dow])
-	# in the beta2 and previous versions the upload cap was set here
-	# this is not needed for the time being because a tab is being opened
+        h.settabs(tab = tab, tab_label = tab_label)
+        app.torrents.append([tab, dow])
+        # in the beta2 and previous versions the upload cap was set here
+        # this is not needed for the time being because a tab is being opened
         if not dow.saveAs(h.chooseFile, h.newpath):
             break
-	# the datalength is needed to work out the progress bar data	
-	h.setdatalength(dow.datalength)
+        # the datalength is needed to work out the progress bar data	
+        h.setdatalength(dow.datalength)
         if not dow.initFiles(old_style = True):
             break
         if not dow.startEngine():
@@ -299,6 +299,7 @@ class Client:
 					sys.exit(2)
 		self.configdir.deleteOldCacheData(self.config['expire_cache_data'])
 		self.lastdirname = "" # for the file dialog
+		# gtk is not so good at remembering the file names
 		# the main glade xml file
 		gladefile = "anatomic.glade"
 		windowname = "window1"
@@ -472,6 +473,7 @@ class Client:
 				self.apply(self.settingstree.get_widget("button10"))
 	def settings(self, widget=None, data=None, data2=None, data3=None):
 			# this function loads the settings dialog
+			# Hiding the dialog and reloading it doesn't seem to work
 			gladefile = "anatomic.glade"
 			windowname = "dialog1"
 			self.settingstree = gtk.glade.XML(gladefile, windowname)
@@ -536,7 +538,8 @@ class Client:
 			self.entry3 = self.settingstree.get_widget("entry3")
 			self.entry3.set_text(self.config["ip"])
 			self.filechooserbutton1 = self.settingstree.get_widget("filechooserbutton1")
-			self.filechooserbutton1.set_current_folder(self.config["default_save"])
+			if isdir(self.config["default_save"]):
+				self.filechooserbutton1.set_current_folder(self.config["default_save"])
 	def dupe(self, widget=None, data=None):
 			self.dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_WARNING)
 			self.dialog.set_modal(True)
@@ -544,7 +547,7 @@ class Client:
 			self.dialog.set_position(gtk.WIN_POS_CENTER_ALWAYS)
 			self.dialog.add_buttons(gtk.STOCK_OK,gtk.RESPONSE_OK)
 			response = self.dialog.run()
-			if response is not None:
+			if response is not None: # what else can it be
 				pagenum = self.tabs.get_current_page()
 				self.tabs.remove_page(pagenum)
 				self.dialog.destroy()
@@ -651,7 +654,7 @@ class Client:
 				tab[0].get_widget("spinbutton14").connect("value-changed", self.move)
 			self.button3.set_sensitive(True)
 			self.button3.connect("clicked", self.repause)
-			self.button3.connect("enter", self.statushandler, "Pause/Resume the selected transfer. (Ctrl-R) or (Ctrl-P)")
+			self.button3.connect("enter", self.statushandler, "Pause/Resume the selected transfer (in certain situations). (Ctrl-R) or (Ctrl-P)")
 			self.button3.connect("leave", self.statushandler, "")	
 			self.button4.set_sensitive(True)
 			self.button4.connect("enter", self.statushandler, "Cancel the selected transfer. (Ctrl-C)")
