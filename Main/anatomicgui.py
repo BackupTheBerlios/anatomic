@@ -375,6 +375,8 @@ class Client:
 		self.tabs = self.wTree.get_widget("notebook3") # pretty important
 		self.tabs.connect("switch-page", self.tabchanged)
 		self.wTree.get_widget("button13").connect_object("clicked", self.prompt, None, self.wTree)
+		self.wTree.get_widget("button13").connect("enter", self.statushandler, "Cancel this transfer (Ctrl-C).")
+		self.wTree.get_widget("button13").connect("leave", self.statushandler, "")	
 		self.wTree.get_widget("checkbutton2").connect("clicked", self.superseed)
 		self.wTree.get_widget("textview2").get_buffer().create_tag("error", foreground="red", scale=pango.SCALE_SMALL)	
 		# this deals with the stuff for notebook page 1
@@ -426,7 +428,10 @@ class Client:
 			tab = gtk.glade.XML(gladefile, windowname)
 			tablabel = "hbox37"
 			tab_label = gtk.glade.XML(gladefile, tablabel)
-			tab_label.get_widget("button13").connect_object("clicked", self.prompt, None, tab)
+			button = tab_label.get_widget("button13")
+			button.connect("enter", self.statushandler, "Cancel this transfer (Ctrl-C).")
+			button.connect("leave", self.statushandler, "")	
+			button.connect_object("clicked", self.prompt, None, tab)
 			tab.get_widget("checkbutton2").connect("clicked", self.superseed)	
 			tab.get_widget("textview2").get_buffer().create_tag("error", foreground="red", scale=pango.SCALE_SMALL)			
 			self.tabs.append_page(tab.get_widget("vbox17"), tab_label.get_widget("hbox37"))
@@ -832,6 +837,8 @@ class Client:
 			tablabel = "hbox37"
 			tab_label = gtk.glade.XML(gladefile, tablabel)
 			tab_label.get_widget("button13").connect_object("clicked", self.prompt, None ,tab)
+			tab_label.get_widget("button13").connect("enter", self.statushandler, "Cancel this transfer (Ctrl-C).")
+			tab_label.get_widget("button13").connect("leave", self.statushandler, "")	
 			tab.get_widget("checkbutton2").connect("clicked", self.superseed)	
 			tab.get_widget("textview2").get_buffer().create_tag("error", foreground="red", scale=pango.SCALE_SMALL)			
 			self.tabs.append_page(tab.get_widget("vbox17"), tab_label.get_widget("hbox37"))
