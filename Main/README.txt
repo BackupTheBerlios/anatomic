@@ -1,48 +1,50 @@
-Anatomic P2P GUI Client (0.1 BETA2)
-==================================
-Licenced under the MIT / X Consortium Licence
+Anatomic P2P (Main) 0.1 RC1
+Thank you for downloading this!
 
-System Requirements
--------------------
+	Licensed under the GNU General Public License Version 2.
+  	Anatomic P2P 0.1 RC1 (Main), Copyright (C) 2005 kunky
+  	Anatomic P2P comes with ABSOLUTELY NO WARRANTY;
+  	This is free software, and you are welcome to redistribute it
+  	under certain conditions;
 
-Linux, Windows, (Mac OSX w/ X11, GTK + lots of other dependencies)
-PyGTK
-GTK+ Runtimes > GTK+2 (See below)
-Python 2.3 or 2.4
+SYSTEM REQUIREMENTS
 
-As with every program on Windows there is no guarantee that everything will work
+Linux
+Python 2.3/2.4.
+GTK+ 2.6 or greater.
+PyGTK 2.6 or greater.
+(N.B This program may function with earlier versions of GTK+2)
 
-GTK+ Runtimes
------------------
-A windows version can be downloaded from ftp://ftp.berlios.de/pub/anatomic/gtk-win32-2.6.8-rc1.exe.
-Linux users should find a version of GTK+ from their distribution provider.
-Mac users can download all dependencies from http://fink.sourceforge.net
+Windows
+(Python 2.3/2.4
+GTK+ 2.6 or greater
+PyGTK 2.6 or greater)
+This is all included in the binary.
+As with every program on Windows there is no guarantee that everything will work.
 
-So what does this app do?
--------------------------------
+Mac
+Python 2.3/2.4.
+GTK+ 2.6 or greater.
+PyGTK 2.6 or greater.
+X11 
+Please download dependencies from http://fink.sourceforge.net.
 
-This program is a modified version of BitTornado using a PyGTK frontend and it can
-access torrents on the Anatomic P2P Network.
-Before use a torrent file is needed. These can be found all over the internet.
+MAIN BRANCH
+The branches (in CVS) formerly known as 'guiclient' and 'plantwizard' have been
+combined to form the Main Branch. This will make it easier for users to isolate the correct 
+download. Previously this project was split up into around seven downloads.
+Main scripts:
 
-How to use this app
-------------------------
+anatomicgui.py (or anatomicgui.exe for windows) - This is the main download client.
+plantwizard.py (or plantwizard.exe for windows) - This is the plant wizard which enables 
+users to distribute files on the Anatomic P2P Network.
+anaupdatesnodes.py (or anaupdatesnodes.exe for windows) - This script updates supernodes and is temporary.
 
-Run the Application
-Add a torrent file name or any options if desired
+KNOWN ISSUES
+GTK+ may throw some very minor error messages out now and then.
+There is a small bug when closing the program that means python may not close gracefully.
 
-This will be:
-
-(linux / osx)
-execute 'python anatomicgui.py' or './anatomicgui.py'
-
-(windows)
-double click on anatomicgui.exe
-
-Bear in mind this is a BETA and things may not work perfectly
-
-Contact
--------
+CONTACT
 
 Please report any bugs to the database at:
 http://developer.berlios.de/bugs/?group_id=2947
@@ -56,11 +58,11 @@ kunky@mail.berlios.de
 The latest code can be found in the CVS server. Instructions to access the CVS
 Server are below:
 
-cvs -d:pserver:anonymous@cvs.anatomic.berlios.de:/cvsroot/anatomic login
+	cvs -d:pserver:anonymous@cvs.anatomic.berlios.de:/cvsroot/anatomic login
 
-cvs -z3 -d:pserver:anonymous@cvs.anatomic.berlios.de:/cvsroot/anatomic co guiclient
+	cvs -z3 -d:pserver:anonymous@cvs.anatomic.berlios.de:/cvsroot/anatomic co Main
 
-Anybody can help development of Anatomic P2P - Any patches would be gratefully received
+Anybody can help development of Anatomic P2P - Any patches would be gratefully received.
 
 
 
