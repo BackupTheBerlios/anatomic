@@ -864,6 +864,7 @@ class Client:
 				for torrent in self.torrents:
 					torrent[1].doneflag.set()
 				# that should stop the torrent(s)
+				self.window.destroy()
 				gtk.main_quit()
 		else:
 				pagenum = self.tabs.get_current_page()	
