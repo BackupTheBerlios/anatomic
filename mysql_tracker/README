@@ -1,0 +1,40 @@
+Anatomic P2P MySQL Tracker 0.1 RC1
+========================
+
+What does this script do?
+===============
+This script acts as one of the dynamic trackers on the Anatomic P2P Network.
+It can also synchronise with other trackers on the network.
+
+System Requirements
+===================
+PHP 4.x.x
+Apache/IIS/Other - LightTPD is preferred
+MySQL 4
+Bandwidth ;-)
+
+What to do with this script?
+============================
+It is best to use a subdomain for this script.
+Edit common.php and edit as necessary.
+The user specified will need rights to create and destroy tables.
+
+Notifying a supertracker about your tracker.
+============================================
+This is important or else your tracker will be useless
+
+Make sure the tracker is set up properly. 
+Active Supertrackers as of 24 OCT 05 are:
+	http://anatomic.berlios.de/network/node-a/
+	http://anatomic.berlios.de/network/node-b/
+ 	http://anatomic.5gigs.com/node-c/
+There should be a submit tracker button on this page.
+
+Contact
+=======
+To contact me please visit:
+http://anatomic.berlios.de
+or
+email:
+kunky [at] mail [dot] berlios [dot] de
+Change at to @ and dot to .
