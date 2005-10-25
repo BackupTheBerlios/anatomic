@@ -1311,7 +1311,7 @@ Don't be a leecher - Keep this program running even after your download has comp
 	    </widget>
 	    <packing>
 	      <property name="tab_expand">False</property>
-	      <property name="tab_fill">True</property>
+	      <property name="tab_fill">False</property>
 	    </packing>
 	  </child>
 
@@ -1325,7 +1325,7 @@ Don't be a leecher - Keep this program running even after your download has comp
 
 	      <child>
 		<widget class="GtkLabel" id="label144">
-		  <property name="width_request">180</property>
+		  <property name="width_request">32</property>
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">No Transfer (yet)</property>
 		  <property name="use_underline">False</property>
@@ -1344,8 +1344,8 @@ Don't be a leecher - Keep this program running even after your download has comp
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
+		  <property name="expand">True</property>
+		  <property name="fill">True</property>
 		</packing>
 	      </child>
 
@@ -1370,9 +1370,9 @@ Don't be a leecher - Keep this program running even after your download has comp
 			  <property name="height_request">13</property>
 			  <property name="visible">True</property>
 			  <property name="icon_name">gtk-cancel</property>
-			  <property name="pixel_size">13</property>
+			  <property name="pixel_size">12</property>
 			  <property name="xalign">0</property>
-			  <property name="yalign">0.5</property>
+			  <property name="yalign">0</property>
 			  <property name="xpad">0</property>
 			  <property name="ypad">0</property>
 			</widget>
@@ -1382,8 +1382,9 @@ Don't be a leecher - Keep this program running even after your download has comp
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
-		  <property name="expand">True</property>
-		  <property name="fill">True</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		  <property name="pack_type">GTK_PACK_END</property>
 		</packing>
 	      </child>
 	    </widget>
