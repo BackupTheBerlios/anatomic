@@ -59,18 +59,19 @@ if(isset($_GET['info_hash']) && isset($_GET['data']))
       {
           $iparray = explode(":",$peerinfo);
           $ip2 = $iparray[0];
-          $port = $iparray[1];
-          (int)$seedorpeer = $iparray[2];
-          $time = $iparray[3];
+          $port = (int)$iparray[1];
+          $seedorpeer = (int)$iparray[2];
+          $time = (int)$iparray[3];
           $peer_ip = explode('.', $ip2);
           $peer_ip = pack("C*", $peer_ip[0], $peer_ip[1], $peer_ip[2], $peer_ip[3]);
           $peer_port = pack("n*", (int)$port);
-          // What we have here is the same as announce.php
-          $query = sprintf('INSERT INTO `%s` values(%s, %s, NOW())', mysql_real_escape_string($info_hash), quote_smart($peer_ip . $peer_port), $seedorpeer);
+          // What we have here is the same as announce.php (apart from the timestamp)
+          // there should be no need to quote the timestamp integer
+          $query = sprintf('INSERT INTO `%s` values(%s, %s, FROM_UNIXTIME(%s))', mysql_real_escape_string($info_hash), quote_smart($peer_ip . $peer_port), $seedorpeer, $time);
           mysql_query($query);
           if(mysql_errno() == 1062)
           {
-              $query = sprintf('UPDATE `%s` SET `timestamp` = NOW(), `seed_or_peer` = %s WHERE ip_and_port = %s', mysql_real_escape_string($info_hash), quote_smart($peer_ip . $peer_port), $seedorpeer );
+              $query = sprintf('UPDATE `%s` SET `timestamp` = FROM_UNIXTIME(%s), `seed_or_peer` = %s WHERE `ip_and_port` = %s AND UNIX_TIMESTAMP(timestamp) < %s', mysql_real_escape_string($info_hash), $time , $seedorpeer, quote_smart($peer_ip . $peer_port), $time );
               mysql_query($query);
           }
           elseif(mysql_errno() == 1146)
